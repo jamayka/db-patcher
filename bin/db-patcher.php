@@ -3,7 +3,18 @@
 
 $baseDir = dirname(__DIR__);
 
-require_once $baseDir . '/vendor/autoload.php';
+foreach ([$baseDir . '/../../autoload.php', $baseDir . '/vendor/autoload.php'] as $file) {
+    if (file_exists($file) && is_readable($file)) {
+        define('DBPATCHER_COMPOSER_INSTALL', $file);
+        break;
+    }
+}
+
+if (!defined('DBPATCHER_COMPOSER_INSTALL')) {
+    die('Please set up the DBPatcher using composer' . PHP_EOL);
+}
+
+require DBPATCHER_COMPOSER_INSTALL;
 
 // --------------------------------------------------------------------------------------------------------------------
 
