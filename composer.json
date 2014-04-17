@@ -8,7 +8,7 @@
             "email": "alexey.khokhryakov@gmail.com"
         }
     ],
-    "bin": ["bin/patch.php"],
+    "bin": ["bin/db-patcher.php"],
     "require": {
         "php": ">=5.3.3",
         "fusepump/cli.php": "0.5.*",
