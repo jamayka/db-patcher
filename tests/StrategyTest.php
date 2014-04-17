@@ -19,12 +19,12 @@ class StrategyTest extends \PHPUnit_Framework_TestCase
 
     public function regularStrategyTestProvider()
     {
-        return [
-            [true, p\PatchFile::STATUS_NEW],
-            [true, p\PatchFile::STATUS_CHANGED],
-            [false, p\PatchFile::STATUS_INSTALLED],
-            [false, p\PatchFile::STATUS_ERROR]
-        ];
+        return array(
+            array(true, p\PatchFile::STATUS_NEW),
+            array(true, p\PatchFile::STATUS_CHANGED),
+            array(false, p\PatchFile::STATUS_INSTALLED),
+            array(false, p\PatchFile::STATUS_ERROR)
+        );
     }
 
     /**
@@ -38,12 +38,12 @@ class StrategyTest extends \PHPUnit_Framework_TestCase
 
     public function strictStrategyTestProvider()
     {
-        return [
-            [true, p\PatchFile::STATUS_NEW],
-            [false, p\PatchFile::STATUS_CHANGED],
-            [false, p\PatchFile::STATUS_INSTALLED],
-            [false, p\PatchFile::STATUS_ERROR]
-        ];
+        return array(
+            array(true, p\PatchFile::STATUS_NEW),
+            array(false, p\PatchFile::STATUS_CHANGED),
+            array(false, p\PatchFile::STATUS_INSTALLED),
+            array(false, p\PatchFile::STATUS_ERROR)
+        );
     }
 
     /**
@@ -57,12 +57,12 @@ class StrategyTest extends \PHPUnit_Framework_TestCase
 
     public function forceAllStrategyTestProvider()
     {
-        return [
-            [true, p\PatchFile::STATUS_NEW],
-            [true, p\PatchFile::STATUS_CHANGED],
-            [true, p\PatchFile::STATUS_INSTALLED],
-            [true, p\PatchFile::STATUS_ERROR]
-        ];
+        return array(
+            array(true, p\PatchFile::STATUS_NEW),
+            array(true, p\PatchFile::STATUS_CHANGED),
+            array(true, p\PatchFile::STATUS_INSTALLED),
+            array(true, p\PatchFile::STATUS_ERROR)
+        );
     }
 
     public function testInteractiveStrategyShouldAskSuperStrategyAndThenReturnConfirmResult()
@@ -76,7 +76,7 @@ class StrategyTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse(
             interactiveStrategy(
                 p\PatchFile::_createForTest('n1', 'f1', 'm1', 'e1'),
-                [$falseStrategy, 'call'],
+                array($falseStrategy, 'call'),
                 $inputs
             )
         );
@@ -111,11 +111,11 @@ class StrategyTest extends \PHPUnit_Framework_TestCase
                 function ($patchFile) use ($m) {
                     $m->callFromDefault();
                 },
-                [
+                array(
                     '-o' => function ($patchFile) use ($m) {
                             $m->callFromMap();
                         }
-                ],
+                ),
                 $inputs
             ),
             ''
@@ -136,12 +136,12 @@ class StrategyTest extends \PHPUnit_Framework_TestCase
                 function ($patchFile) use ($m) {
                     $m->callFromDefault();
                 },
-                [
+                array(
                     '-o' => function ($patchFile, $superStrategy) use ($m) {
                             $superStrategy($patchFile);
                             $m->callFromMap();
                         }
-                ],
+                ),
                 $inputs
             ),
             ''
@@ -151,7 +151,7 @@ class StrategyTest extends \PHPUnit_Framework_TestCase
     public function testStrategyPassesNeededArgumentsToStrategy()
     {
         $m = m::mock();
-        $m->shouldReceive('call')->with('test', true, [3], null)->once();
+        $m->shouldReceive('call')->with('test', true, array(3), null)->once();
 
         call_user_func(
             strategyFactory(
@@ -160,7 +160,7 @@ class StrategyTest extends \PHPUnit_Framework_TestCase
                 },
                 array(),
                 null,
-                array('arg1' => 'test', 'arg2' => true, 'arg3' => [3])
+                array('arg1' => 'test', 'arg2' => true, 'arg3' => array(3))
             ),
             ''
         );

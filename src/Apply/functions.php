@@ -14,7 +14,7 @@ use DBPatcher;
 function applyPatch($patchFile, $connection, $cmd, $strategyCallback)
 {
     if (!call_user_func($strategyCallback, $patchFile)) {
-        return [null];
+        return array(null);
     }
 
     if ($patchFile->extension === 'php') {
@@ -25,7 +25,7 @@ function applyPatch($patchFile, $connection, $cmd, $strategyCallback)
         return applySqlPatch($patchFile, $connection);
     }
 
-    return [null];
+    return array(null);
 }
 
 /**
@@ -39,16 +39,16 @@ function applyPhpPatch($patchFile, $cmd)
         $cmd->exec('/usr/bin/env php ' . $patchFile->filename);
 
         if ($cmd->return_var == 0) {
-            return [DBPatcher\PatchFile::copyWithNewStatus($patchFile, DBPatcher\PatchFile::STATUS_INSTALLED)];
+            return array(DBPatcher\PatchFile::copyWithNewStatus($patchFile, DBPatcher\PatchFile::STATUS_INSTALLED));
         } else {
-            return [
+            return array(
                 DBPatcher\PatchFile::copyWithNewStatus($patchFile, DBPatcher\PatchFile::STATUS_ERROR),
                 implode(PHP_EOL, $cmd->output)
-            ];
+            );
         }
     }
 
-    return [DBPatcher\PatchFile::copyWithNewStatus($patchFile, DBPatcher\PatchFile::STATUS_ERROR)];
+    return array(DBPatcher\PatchFile::copyWithNewStatus($patchFile, DBPatcher\PatchFile::STATUS_ERROR));
 }
 
 /**
@@ -66,16 +66,16 @@ function applySqlPatch($patchFile, $connection)
             array_walk($queries, function ($q) use ($connection) { $connection->executeQuery($q); });
         } catch (\Doctrine\DBAL\DBALException $e) {
             $connection->rollBack();
-            return [
+            return array(
                 DBPatcher\PatchFile::copyWithNewStatus($patchFile, DBPatcher\PatchFile::STATUS_ERROR),
                 $e->getMessage()
-            ];
+            );
         }
 
         $connection->commit();
 
-        return [DBPatcher\PatchFile::copyWithNewStatus($patchFile, DBPatcher\PatchFile::STATUS_INSTALLED)];
+        return array(DBPatcher\PatchFile::copyWithNewStatus($patchFile, DBPatcher\PatchFile::STATUS_INSTALLED));
     }
 
-    return [DBPatcher\PatchFile::copyWithNewStatus($patchFile, DBPatcher\PatchFile::STATUS_ERROR)];
+    return array(DBPatcher\PatchFile::copyWithNewStatus($patchFile, DBPatcher\PatchFile::STATUS_ERROR));
 }

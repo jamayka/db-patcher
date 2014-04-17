@@ -31,17 +31,17 @@ class PatchFileTest extends \PHPUnit_Framework_TestCase
 
     public function properties()
     {
-        return [
-            ['name'],
-            ['filename'],
-            ['md5'],
-            ['extension']
-        ];
+        return array(
+            array('name'),
+            array('filename'),
+            array('md5'),
+            array('extension')
+        );
     }
 
     private static function setupPatchFile($dir = 'testDir', $name = 'test-patch.sql', $content = 'DROP TABLE some')
     {
-        vfsStream::setup($dir, null, [$name => $content]);
+        vfsStream::setup($dir, null, array($name => $content));
 
         return PatchFile::createFromFS($name, vfsStream::url($dir));
     }

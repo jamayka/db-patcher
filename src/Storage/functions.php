@@ -41,7 +41,7 @@ function getRowsFromDbForPatchFiles($patchFiles, $connection)
     $rowsFromDb = $connection->executeQuery(
         'SELECT "name", status, md5 FROM db_patcher WHERE "name" IN (?)',
         array_map(function ($p) { return $p->name; }, $patchFiles),
-        [\Doctrine\DBAL\Connection::PARAM_STR_ARRAY]
+        array(\Doctrine\DBAL\Connection::PARAM_STR_ARRAY)
     )->fetchAll();
 
     return array_combine(array_map(function ($r) { return $r['name']; }, $rowsFromDb), $rowsFromDb);
@@ -54,8 +54,7 @@ function getRowsFromDbForPatchFiles($patchFiles, $connection)
 function savePatchFile($connection, $patchFile)
 {
     $name = $connection->quote($patchFile->name, \PDO::PARAM_INT);
-    if ($connection->update('db_patch', ['status' => $patchFile->status], ['name' => $name]) === 0) {
-        $connection->insert('db_patch', ['status' => $patchFile->status, 'name' => $name]);
+    if ($connection->update('db_patch', array('status' => $patchFile->status), array('name' => $name)) === 0) {
+        $connection->insert('db_patch', array('status' => $patchFile->status, 'name' => $name));
     }
 }
-

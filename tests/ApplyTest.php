@@ -11,7 +11,7 @@ class ApplyTest extends \PHPUnit_Framework_TestCase
 
     public function testApplySqlPatchCallsConnectionForSqlPatchAndReturnsPatchWithInstalledStatus()
     {
-        vfsStream::setup('test', null, ['name.sql' => 'SELECT 1;SELECT 2;']);
+        vfsStream::setup('test', null, array('name.sql' => 'SELECT 1;SELECT 2;'));
 
         $patchFile = DBPatcher\PatchFile::createFromFS('name.sql', vfsStream::url('test'));
 
@@ -29,7 +29,7 @@ class ApplyTest extends \PHPUnit_Framework_TestCase
 
     public function testApplySqlPatchReturnsPatchWithErrorStatusOnExceptionInSql()
     {
-        vfsStream::setup('test', null, ['name.sql' => 'SELE']);
+        vfsStream::setup('test', null, array('name.sql' => 'SELE'));
 
         $patchFile = DBPatcher\PatchFile::createFromFS('name.sql', vfsStream::url('test'));
 
@@ -68,7 +68,7 @@ class ApplyTest extends \PHPUnit_Framework_TestCase
         $cmd->shouldReceive('exec')
             ->with('/usr/bin/env php test/patch.php')
             ->andSet('return_var', 3)
-            ->andSet('output', ['test error!'])
+            ->andSet('output', array('test error!'))
             ->once();
 
         list($patch, $errorMsg) = applyPhpPatch($patchFile, $cmd);
@@ -87,7 +87,7 @@ class ApplyTest extends \PHPUnit_Framework_TestCase
         $cmd = m::mock(function ($m) { $m->shouldIgnoreMissing(); });
         $cmd->shouldReceive('exec')->never();
 
-        list($patch) = applyPatch($patchFile, m::mock(), $cmd, [$strategy, 'call']);
+        list($patch) = applyPatch($patchFile, m::mock(), $cmd, array($strategy, 'call'));
         $this->assertNull($patch);
     }
 
@@ -101,7 +101,7 @@ class ApplyTest extends \PHPUnit_Framework_TestCase
         $cmd = m::mock(function ($m) { $m->shouldIgnoreMissing(); });
         $cmd->shouldReceive('exec')->andSet('return_var', 0)->once();
 
-        list($patch) = applyPatch($patchFile, m::mock(), $cmd, [$strategy, 'call']);
+        list($patch) = applyPatch($patchFile, m::mock(), $cmd, array($strategy, 'call'));
         $this->assertNotNull($patch);
     }
 

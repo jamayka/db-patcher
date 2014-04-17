@@ -30,10 +30,10 @@ function getConfig($baseDir, $configPath = null)
 {
     $projectDir = rtrim($baseDir, '/') . '/../../../';
 
-    $filenames = [
+    $filenames = array(
         $projectDir . 'etc/db-patcher.json',
         $projectDir . 'data/etc/db-patcher.json'
-    ];
+    );
 
     if ($configPath) {
         array_unshift($filenames, $configPath);

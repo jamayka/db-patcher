@@ -38,10 +38,10 @@ class StorageTest extends \PHPUnit_Framework_TestCase
         $statement->shouldReceive('fetchAll')
             ->withNoArgs()
             ->andReturn(
-                [
-                    ['name' => 'n1', 'status' => DBPatcher\PatchFile::STATUS_INSTALLED, 'md5' => 'mm1'],
-                    ['name' => 'n2', 'status' => DBPatcher\PatchFile::STATUS_ERROR, 'md5' => 'mm2']
-                ]
+                array(
+                    array('name' => 'n1', 'status' => DBPatcher\PatchFile::STATUS_INSTALLED, 'md5' => 'mm1'),
+                    array('name' => 'n2', 'status' => DBPatcher\PatchFile::STATUS_ERROR, 'md5' => 'mm2')
+                )
             )
             ->once();
 
@@ -49,18 +49,18 @@ class StorageTest extends \PHPUnit_Framework_TestCase
         $connection->shouldReceive('executeQuery')
             ->with(
                 'SELECT "name", status, md5 FROM db_patcher WHERE "name" IN (?)',
-                ['n1', 'n2', 'n3'],
-                [\Doctrine\DBAL\Connection::PARAM_STR_ARRAY]
+                array('n1', 'n2', 'n3'),
+                array(\Doctrine\DBAL\Connection::PARAM_STR_ARRAY)
             )
             ->andReturn($statement)
             ->once();
 
         $this->assertEquals(
-            [
-                'n1' => ['name' => 'n1', 'status' => DBPatcher\PatchFile::STATUS_INSTALLED, 'md5' => 'mm1'],
-                'n2' => ['name' => 'n2', 'status' => DBPatcher\PatchFile::STATUS_ERROR, 'md5' => 'mm2']
-            ],
-            getRowsFromDbForPatchFiles([$patchFile1, $patchFile2, $patchFile3], $connection)
+            array(
+                'n1' => array('name' => 'n1', 'status' => DBPatcher\PatchFile::STATUS_INSTALLED, 'md5' => 'mm1'),
+                'n2' => array('name' => 'n2', 'status' => DBPatcher\PatchFile::STATUS_ERROR, 'md5' => 'mm2')
+            ),
+            getRowsFromDbForPatchFiles(array($patchFile1, $patchFile2, $patchFile3), $connection)
         );
     }
 
@@ -71,7 +71,7 @@ class StorageTest extends \PHPUnit_Framework_TestCase
         $connection = m::mock();
         $connection->shouldReceive('quote')->andReturnUsing(function ($a) { return $a; });
         $connection->shouldReceive('update')
-            ->with('db_patch', ['status' => DBPatcher\PatchFile::STATUS_INSTALLED], ['name' => 'n1'])
+            ->with('db_patch', array('status' => DBPatcher\PatchFile::STATUS_INSTALLED), array('name' => 'n1'))
             ->andReturn(1)
             ->once();
         $connection->shouldReceive('insert')->never();
@@ -87,7 +87,7 @@ class StorageTest extends \PHPUnit_Framework_TestCase
         $connection->shouldReceive('quote')->andReturnUsing(function ($a) { return $a; });
         $connection->shouldReceive('update')->andReturn(0)->once();
         $connection->shouldReceive('insert')
-            ->with('db_patch', ['status' => DBPatcher\PatchFile::STATUS_INSTALLED, 'name' => 'n1'])
+            ->with('db_patch', array('status' => DBPatcher\PatchFile::STATUS_INSTALLED, 'name' => 'n1'))
             ->once();
 
         savePatchFile($connection, $patchFile);

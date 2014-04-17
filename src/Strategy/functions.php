@@ -93,12 +93,12 @@ function interactiveStrategy($patchFile, $superStrategy, $inputs)
  * @param array $arguments
  * @return callable
  */
-function strategyFactory($defaultStrategy, $strategyMap = array(), $inputs = null, $arguments = [])
+function strategyFactory($defaultStrategy, $strategyMap = array(), $inputs = null, $arguments = array())
 {
-    $strategyList = [];
+    $strategyList = array();
 
     $addStrategy = function ($strategy) use (&$strategyList, $arguments) {
-        $args = [];
+        $args = array();
 
         $reflection = new \ReflectionFunction($strategy);
         foreach ($reflection->getParameters() as $param) {
@@ -114,7 +114,7 @@ function strategyFactory($defaultStrategy, $strategyMap = array(), $inputs = nul
         }
 
         $strategyList[] = function ($patchFile) use ($strategy, $args) {
-            call_user_func_array($strategy, array_merge([$patchFile], $args));
+            call_user_func_array($strategy, array_merge(array($patchFile), $args));
         };
     };
 

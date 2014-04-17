@@ -19,7 +19,7 @@ function getPatchesWithStatuses(
             if (array_key_exists($p->name, $rowsFromDb)) {
                 return call_user_func_array(
                     $patchWithUpdatedStatusFactory,
-                    [$p, $rowsFromDb[$p->name]['status'], $rowsFromDb[$p->name]['md5']]
+                    array($p, $rowsFromDb[$p->name]['status'], $rowsFromDb[$p->name]['md5'])
                 );
             }
 
@@ -79,7 +79,7 @@ function getPatchFiles($patchNames, $baseDir, $patchFileFactory)
  */
 function getPatchNamesList($baseDir)
 {
-    $result = [];
+    $result = array();
 
     foreach (new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($baseDir)) as $fileInfo) {
         $result[] = ltrim(substr($fileInfo->getPathname(), strlen($baseDir)), '/');

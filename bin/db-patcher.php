@@ -3,7 +3,7 @@
 
 $baseDir = dirname(__DIR__);
 
-foreach ([$baseDir . '/../../autoload.php', $baseDir . '/vendor/autoload.php'] as $file) {
+foreach (array($baseDir . '/../../autoload.php', $baseDir . '/vendor/autoload.php') as $file) {
     if (file_exists($file) && is_readable($file)) {
         define('DBPATCHER_COMPOSER_INSTALL', $file);
         break;
@@ -42,7 +42,7 @@ if (!array_key_exists('db', $config) || !is_array($config['db'])) {
 
 try {
     $dbConnection = \Doctrine\DBAL\DriverManager::getConnection(
-        array_merge($config['db'], ['driver' => 'pdo_pgsql'])
+        array_merge($config['db'], array('driver' => 'pdo_pgsql'))
     );
 } catch (\Doctrine\DBAL\DBALException $e) {
     $output->error('Cannot connect to DB!');
@@ -60,12 +60,12 @@ $runPatch = function ($patchFile) use ($inputs, $output, $dbConnection) {
         new \Ymmtmsys\Command\Command(),
         \DBPatcher\Strategy\strategyFactory(
             '\DBPatcher\Strategy\regularStrategy',
-            [
+            array(
                 '-n' => '\DBPatcher\Strategy\regularStrategy',
                 '-i' => '\DBPatcher\Strategy\interactiveStrategy'
-            ],
+            ),
             $inputs,
-            ['inputs' => $inputs]
+            array('inputs' => $inputs)
         )
     );
 
@@ -101,12 +101,12 @@ if (!is_dir($patchesDir) || !is_readable($patchesDir)) {
 // --------------------------------------------------------------------------------------------------------------------
 
 if ($inputs->get('-p')) {
-    $patchFiles = [\DBPatcher\PatchFile::createFromFS($inputs->get('-p'), $patchesDir)];
+    $patchFiles = array(\DBPatcher\PatchFile::createFromFS($inputs->get('-p'), $patchesDir));
 } else {
     $patchFiles = \DBPatcher\getPatchFiles(
         \DBPatcher\getPatchNamesList($patchesDir),
         $patchesDir,
-        ['\DBPatcher\PatchFile', 'createFromFS']
+        array('\DBPatcher\PatchFile', 'createFromFS')
     );
 }
 
