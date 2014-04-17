@@ -77,32 +77,4 @@ class ApplyTest extends \PHPUnit_Framework_TestCase
         $this->assertSame(DBPatcher\PatchFile::STATUS_ERROR, $patch->status);
     }
 
-    public function testApplyPatchCallsStrategyCallbackForPatchAndSkipsItWhenFalse()
-    {
-        $patchFile = DBPatcher\PatchFile::_createForTest('patch.php', 'test/patch.php', 'sfgsdg', 'php');
-
-        $strategy = m::mock();
-        $strategy->shouldReceive('call')->with($patchFile)->andReturn(false);
-
-        $cmd = m::mock(function ($m) { $m->shouldIgnoreMissing(); });
-        $cmd->shouldReceive('exec')->never();
-
-        list($patch) = applyPatch($patchFile, m::mock(), $cmd, array($strategy, 'call'));
-        $this->assertNull($patch);
-    }
-
-    public function testApplyPatchCallsStrategyCallbackForPatchAndAppliesItWhenTrue()
-    {
-        $patchFile = DBPatcher\PatchFile::_createForTest('patch.php', 'test/patch.php', 'sfgsdg', 'php');
-
-        $strategy = m::mock();
-        $strategy->shouldReceive('call')->with($patchFile)->andReturn(true);
-
-        $cmd = m::mock(function ($m) { $m->shouldIgnoreMissing(); });
-        $cmd->shouldReceive('exec')->andSet('return_var', 0)->once();
-
-        list($patch) = applyPatch($patchFile, m::mock(), $cmd, array($strategy, 'call'));
-        $this->assertNotNull($patch);
-    }
-
 }

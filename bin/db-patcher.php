@@ -53,24 +53,28 @@ try {
 
 // --------------------------------------------------------------------------------------------------------------------
 
-$runPatch = function ($patchFile) use ($inputs, $output, $dbConnection) {
+$strategy = \DBPatcher\Strategy\strategyFactory(
+    '\DBPatcher\Strategy\regularStrategy',
+    array(
+        '-n' => '\DBPatcher\Strategy\regularStrategy',
+        '-i' => '\DBPatcher\Strategy\interactiveStrategy'
+    ),
+    $inputs,
+    array('inputs' => $inputs)
+);
+
+// --------------------------------------------------------------------------------------------------------------------
+
+$runPatch = function ($patchFile) use ($inputs, $output, $dbConnection, $strategy) {
     $output->out("- {$patchFile->name} ...");
 
+    if (!$strategy($patchFile)) {
+        $output->out('Skipping');
+        return true;
+    }
+
     list($patchFile, $errorMsg) = array_merge(
-        \DBPatcher\Apply\applyPatch(
-            $patchFile,
-            $dbConnection,
-            new \Ymmtmsys\Command\Command(),
-            \DBPatcher\Strategy\strategyFactory(
-                '\DBPatcher\Strategy\regularStrategy',
-                array(
-                    '-n' => '\DBPatcher\Strategy\regularStrategy',
-                    '-i' => '\DBPatcher\Strategy\interactiveStrategy'
-                ),
-                $inputs,
-                array('inputs' => $inputs)
-            )
-        ),
+        \DBPatcher\Apply\applyPatch($patchFile, $dbConnection, new \Ymmtmsys\Command\Command()),
         array(null)
     );
 

@@ -8,15 +8,10 @@ use DBPatcher;
  * @param DBPatcher\PatchFile $patchFile
  * @param \Doctrine\DBAL\Connection $connection
  * @param \Ymmtmsys\Command\Command $cmd
- * @param callable $strategyCallback
  * @return array
  */
-function applyPatch($patchFile, $connection, $cmd, $strategyCallback)
+function applyPatch($patchFile, $connection, $cmd)
 {
-    if (!call_user_func($strategyCallback, $patchFile)) {
-        return array(null);
-    }
-
     if ($patchFile->extension === 'php') {
         return applyPhpPatch($patchFile, $cmd);
     }
