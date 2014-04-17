@@ -41,7 +41,7 @@ function getRowsFromDbForPatchFiles($patchFiles, $connection)
 {
     $rowsFromDb = $connection->executeQuery(
         'SELECT "name", status, md5 FROM db_patcher WHERE "name" IN (?)',
-        array_map(function ($p) { return $p->name; }, $patchFiles),
+        array(array_map(function ($p) { return $p->name; }, $patchFiles)),
         array(\Doctrine\DBAL\Connection::PARAM_STR_ARRAY)
     )->fetchAll();
 

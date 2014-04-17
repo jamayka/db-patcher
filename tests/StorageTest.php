@@ -49,7 +49,7 @@ class StorageTest extends \PHPUnit_Framework_TestCase
         $connection->shouldReceive('executeQuery')
             ->with(
                 'SELECT "name", status, md5 FROM db_patcher WHERE "name" IN (?)',
-                array('n1', 'n2', 'n3'),
+                array(array('n1', 'n2', 'n3')),
                 array(\Doctrine\DBAL\Connection::PARAM_STR_ARRAY)
             )
             ->andReturn($statement)
