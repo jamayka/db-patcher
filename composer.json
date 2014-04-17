@@ -1,0 +1,36 @@
+{
+    "name": "jamayka/db-patcher",
+    "description": "DB patcher",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Alexey Khokhryakov",
+            "email": "alexey.khokhryakov@gmail.com"
+        }
+    ],
+    "bin": ["bin/patch.php"],
+    "require": {
+        "fusepump/cli.php": "0.5.2",
+        "doctrine/dbal": "2.3.0",
+        "ymmtmsys/command": "0.2.0",
+        "jdorn/sql-formatter": "v1.2.17"
+    },
+    "require-dev": {
+        "mikey179/vfsStream": "v1.2.0",
+        "mockery/mockery": "0.9.0",
+        "phpunit/phpunit": "4.0.15"
+    },
+    "autoload": {
+        "psr-4": {
+            "DBPatcher\\": "src/"
+        },
+        "files": [
+           "src/functions.php",
+           "src/Storage/functions.php",
+           "src/Strategy/functions.php",
+           "src/Apply/functions.php",
+           "src/Cli/functions.php"
+        ]
+    }
+}
+
