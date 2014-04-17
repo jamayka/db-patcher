@@ -82,7 +82,9 @@ function getPatchNamesList($baseDir)
     $result = array();
 
     foreach (new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($baseDir)) as $fileInfo) {
-        $result[] = ltrim(substr($fileInfo->getPathname(), strlen($baseDir)), '/');
+        if ($fileInfo->isFile()) {
+            $result[] = ltrim(substr($fileInfo->getPathname(), strlen($baseDir)), '/');
+        }
     }
 
     sort($result);

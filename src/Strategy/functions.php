@@ -114,7 +114,7 @@ function strategyFactory($defaultStrategy, $strategyMap = array(), $inputs = nul
         }
 
         $strategyList[] = function ($patchFile) use ($strategy, $args) {
-            call_user_func_array($strategy, array_merge(array($patchFile), $args));
+            return call_user_func_array($strategy, array_merge(array($patchFile), $args));
         };
     };
 

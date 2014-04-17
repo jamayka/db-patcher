@@ -9,7 +9,7 @@ use DBPatcher;
  * @param \Doctrine\DBAL\Connection $connection
  * @param \Ymmtmsys\Command\Command $cmd
  * @param callable $strategyCallback
- * @return DBPatcher\PatchFile
+ * @return array
  */
 function applyPatch($patchFile, $connection, $cmd, $strategyCallback)
 {

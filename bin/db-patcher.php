@@ -41,8 +41,10 @@ if (!array_key_exists('db', $config) || !is_array($config['db'])) {
 }
 
 try {
-    $dbConnection = \Doctrine\DBAL\DriverManager::getConnection(
-        array_merge($config['db'], array('driver' => 'pdo_pgsql'))
+    $dbConnection = \DBPatcher\Storage\getDbConnection(
+        \Doctrine\DBAL\DriverManager::getConnection(
+            array_merge($config['db'], array('driver' => 'pdo_pgsql'))
+        )
     );
 } catch (\Doctrine\DBAL\DBALException $e) {
     $output->error('Cannot connect to DB!');
@@ -54,19 +56,22 @@ try {
 $runPatch = function ($patchFile) use ($inputs, $output, $dbConnection) {
     $output->out("- {$patchFile->name} ...");
 
-    list($patchFile, $errorMsg) = \DBPatcher\Apply\applyPatch(
-        $patchFile,
-        $dbConnection,
-        new \Ymmtmsys\Command\Command(),
-        \DBPatcher\Strategy\strategyFactory(
-            '\DBPatcher\Strategy\regularStrategy',
-            array(
-                '-n' => '\DBPatcher\Strategy\regularStrategy',
-                '-i' => '\DBPatcher\Strategy\interactiveStrategy'
-            ),
-            $inputs,
-            array('inputs' => $inputs)
-        )
+    list($patchFile, $errorMsg) = array_merge(
+        \DBPatcher\Apply\applyPatch(
+            $patchFile,
+            $dbConnection,
+            new \Ymmtmsys\Command\Command(),
+            \DBPatcher\Strategy\strategyFactory(
+                '\DBPatcher\Strategy\regularStrategy',
+                array(
+                    '-n' => '\DBPatcher\Strategy\regularStrategy',
+                    '-i' => '\DBPatcher\Strategy\interactiveStrategy'
+                ),
+                $inputs,
+                array('inputs' => $inputs)
+            )
+        ),
+        array(null)
     );
 
     \DBPatcher\Storage\savePatchFile($dbConnection, $patchFile);

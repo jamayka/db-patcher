@@ -11,14 +11,15 @@ use DBPatcher;
 function getDbConnection($connection)
 {
     try {
-        $connection->executeQuery('SELECT id FROM db_patch LIMIT 1');
+        $connection->executeQuery('SELECT id FROM db_patcher LIMIT 1');
     } catch (\Doctrine\DBAL\DBALException $e) {
         $connection->executeQuery(<<<SQL
-CREATE TABLE db_patch
+CREATE TABLE db_patcher
 (
   id serial NOT NULL,
   "name" text NOT NULL,
   status smallint NOT NULL DEFAULT 0,
+  md5 text NOT NULL,
   modified_tmstmp timestamp without time zone,
   installed_tmstmp timestamp without time zone,
   CONSTRAINT pk_db_patch PRIMARY KEY (id ),
@@ -44,7 +45,11 @@ function getRowsFromDbForPatchFiles($patchFiles, $connection)
         array(\Doctrine\DBAL\Connection::PARAM_STR_ARRAY)
     )->fetchAll();
 
-    return array_combine(array_map(function ($r) { return $r['name']; }, $rowsFromDb), $rowsFromDb);
+    if (!empty($rowsFromDb)) {
+        return array_combine(array_map(function ($r) { return $r['name']; }, $rowsFromDb), $rowsFromDb);
+    }
+
+    return array();
 }
 
 /**
@@ -54,7 +59,8 @@ function getRowsFromDbForPatchFiles($patchFiles, $connection)
 function savePatchFile($connection, $patchFile)
 {
     $name = $connection->quote($patchFile->name, \PDO::PARAM_INT);
-    if ($connection->update('db_patch', array('status' => $patchFile->status), array('name' => $name)) === 0) {
-        $connection->insert('db_patch', array('status' => $patchFile->status, 'name' => $name));
+    $data = array('status' => $patchFile->status, 'md5' => $patchFile->md5);
+    if ($connection->update('db_patcher', $data, array('name' => $name)) === 0) {
+        $connection->insert('db_patcher', array_merge($data, array('name' => $name)));
     }
 }

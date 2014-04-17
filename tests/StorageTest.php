@@ -11,7 +11,7 @@ class StorageTest extends \PHPUnit_Framework_TestCase
     function testGetDbConnectionChecksForPatcherTable()
     {
         $connection = m::mock()->shouldIgnoreMissing();
-        $connection->shouldReceive('executeQuery')->with('SELECT id FROM db_patch LIMIT 1')->once();
+        $connection->shouldReceive('executeQuery')->with('SELECT id FROM db_patcher LIMIT 1')->once();
 
         getDbConnection($connection);
     }
@@ -20,10 +20,10 @@ class StorageTest extends \PHPUnit_Framework_TestCase
     {
         $connection = m::mock()->shouldIgnoreMissing();
         $connection->shouldReceive('executeQuery')
-            ->with('SELECT id FROM db_patch LIMIT 1')
+            ->with('SELECT id FROM db_patcher LIMIT 1')
             ->once()
             ->andThrow(new \Doctrine\DBAL\DBALException());
-        $connection->shouldReceive('executeQuery')->with('/^CREATE TABLE db_patch/');
+        $connection->shouldReceive('executeQuery')->with('/^CREATE TABLE db_patcher/');
 
         getDbConnection($connection);
     }
@@ -71,7 +71,7 @@ class StorageTest extends \PHPUnit_Framework_TestCase
         $connection = m::mock();
         $connection->shouldReceive('quote')->andReturnUsing(function ($a) { return $a; });
         $connection->shouldReceive('update')
-            ->with('db_patch', array('status' => DBPatcher\PatchFile::STATUS_INSTALLED), array('name' => 'n1'))
+            ->with('db_patcher', array('status' => DBPatcher\PatchFile::STATUS_INSTALLED, 'md5' => 'm1'), array('name' => 'n1'))
             ->andReturn(1)
             ->once();
         $connection->shouldReceive('insert')->never();
@@ -87,7 +87,7 @@ class StorageTest extends \PHPUnit_Framework_TestCase
         $connection->shouldReceive('quote')->andReturnUsing(function ($a) { return $a; });
         $connection->shouldReceive('update')->andReturn(0)->once();
         $connection->shouldReceive('insert')
-            ->with('db_patch', array('status' => DBPatcher\PatchFile::STATUS_INSTALLED, 'name' => 'n1'))
+            ->with('db_patcher', array('status' => DBPatcher\PatchFile::STATUS_INSTALLED, 'md5' => 'm1', 'name' => 'n1'))
             ->once();
 
         savePatchFile($connection, $patchFile);
