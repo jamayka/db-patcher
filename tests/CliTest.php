@@ -64,6 +64,18 @@ class CliTest extends \PHPUnit_Framework_TestCase
         $this->assertSame(['test' => 'value'], getConfig(vfs::url('root/vendor/xiag/db-patcher')));
     }
 
+    public function testGetConfigChangesRelativeDirectoryToAbsolute()
+    {
+        $configStructure = [
+            'etc' => ['db-patcher.json' => json_encode(['directory' => '../patches'])],
+            'patches' => array()
+        ];
+        vfs::setup('root', null, self::rootProjectFileStructure($configStructure));
+
+        $config = getConfig(vfs::url('root/vendor/xiag/db-patcher'));
+        $this->assertSame(vfs::url('root/vendor/xiag/db-patcher/../../../etc/../patches'), $config['directory']);
+    }
+
     private static function rootProjectFileStructure($add = [])
     {
         return array_merge($add, ['vendor' => ['xiag' => ['db-patcher' => []]]]);

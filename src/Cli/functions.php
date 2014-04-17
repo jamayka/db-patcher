@@ -21,6 +21,11 @@ function getConfiguredOptions($inputs)
     return $inputs;
 }
 
+/**
+ * @param string $baseDir
+ * @param string $configPath
+ * @return array|null
+ */
 function getConfig($baseDir, $configPath = null)
 {
     $projectDir = rtrim($baseDir, '/') . '/../../../';
@@ -38,10 +43,29 @@ function getConfig($baseDir, $configPath = null)
         if (file_exists($filename) && is_readable($filename)) {
             $config = json_decode(file_get_contents($filename), true);
             if ($config) {
+                if (array_key_exists('directory', $config)) {
+                    $config['directory'] = getAbsolutePath($config['directory'], dirname($filename));
+                }
+
                 return $config;
             }
         }
     }
 
     return null;
+}
+
+/**
+ * @param string $path
+ * @param string $baseDir
+ * @return string
+ */
+function getAbsolutePath($path, $baseDir)
+{
+    $p = parse_url($path);
+    if (is_array($p) && $p['path'] && $path === $p['path'] && $path[0] !== '/') {
+        return $baseDir . '/' . $p['path'];
+    }
+
+    return $path;
 }
