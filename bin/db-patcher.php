@@ -66,7 +66,7 @@ $strategy = \DBPatcher\Strategy\strategyFactory(
 
 // --------------------------------------------------------------------------------------------------------------------
 
-$printPatch = function ($patchFile, $output) use ($strategy) {
+$printPatch = function ($patchFile) use ($output, $strategy) {
     try {
         $actionLabel = $strategy($patchFile) ? 'install' : 'skip';
     } catch (\DBPatcher\InputPreview\Exception $e) {
@@ -76,7 +76,7 @@ $printPatch = function ($patchFile, $output) use ($strategy) {
     $output->out(\DBPatcher\patchText($patchFile) . " - $actionLabel");
 };
 
-$runPatch = function ($patchFile) use ($inputs, $output, $dbConnection, $strategy, $runPatch) {
+$runPatch = function ($patchFile) use ($inputs, $output, $dbConnection, $strategy) {
     $output->out("==================================");
     $output->out(\DBPatcher\patchText($patchFile));
 

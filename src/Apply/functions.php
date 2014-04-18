@@ -31,7 +31,7 @@ function applyPatch($patchFile, $connection, $cmd)
 function applyPhpPatch($patchFile, $cmd)
 {
     if ($patchFile->extension === 'php') {
-        $cmd->exec('/usr/bin/env php ' . $patchFile->filename);
+        $cmd->exec('/usr/bin/env php ' . $patchFile->filename . ' 2>&1');
 
         if ($cmd->return_var == 0) {
             return array(DBPatcher\PatchFile::copyWithNewStatus($patchFile, DBPatcher\PatchFile::STATUS_INSTALLED));
