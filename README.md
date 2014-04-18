@@ -7,7 +7,7 @@ Installation
 ------------
 
     Include as a requirement in your composer json.
-    Patch.php will be available in your bin directory (usually vendor/bin)
+    db-patcher.php will be available in your bin directory (usually vendor/bin)
 
 Usage
 -----

@@ -1,11 +1,11 @@
 {
     "db": {
-        "dbname": "ykovaleva-hogashop",
-        "user": "postgres",
-        "password": "",
-        "host": "db.dev.xiag.ch",
-        "port": "9120",
-        "charset": "ISO-8859-1"
+        "dbname": "dbname",
+        "user": "user",
+        "password": "password",
+        "host": "localhost",
+        "port": "5432",
+        "charset": "UTF8"
     },
-    "directory": ""
+    "directory": "../scripts/update/"
 }
