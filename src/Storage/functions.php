@@ -58,9 +58,8 @@ function getRowsFromDbForPatchFiles($patchFiles, $connection)
  */
 function savePatchFile($connection, $patchFile)
 {
-    $name = $connection->quote($patchFile->name, \PDO::PARAM_INT);
     $data = array('status' => $patchFile->status, 'md5' => $patchFile->md5);
-    if ($connection->update('db_patcher', $data, array('name' => $name)) === 0) {
-        $connection->insert('db_patcher', array_merge($data, array('name' => $name)));
+    if ($connection->update('db_patcher', $data, array('name' => $patchFile->name)) === 0) {
+        $connection->insert('db_patcher', array_merge($data, array('name' => $patchFile->name)));
     }
 }
