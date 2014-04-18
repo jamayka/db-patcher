@@ -53,7 +53,7 @@ class ApplyTest extends \PHPUnit_Framework_TestCase
         $patchFile = DBPatcher\PatchFile::_createForTest('patch.php', 'test/patch.php', 'sfgsdg', 'php');
 
         $cmd = m::mock(function ($m) { $m->shouldIgnoreMissing(); });
-        $cmd->shouldReceive('exec')->with('/usr/bin/env php test/patch.php')->andSet('return_var', 0)->once();
+        $cmd->shouldReceive('exec')->with('/usr/bin/env php test/patch.php 2>&1')->andSet('return_var', 0)->once();
 
         list($patch) = applyPhpPatch($patchFile, $cmd);
         $this->assertInstanceOf('\DBPatcher\PatchFile', $patch);
@@ -66,7 +66,7 @@ class ApplyTest extends \PHPUnit_Framework_TestCase
 
         $cmd = m::mock(function ($m) { $m->shouldIgnoreMissing(); });
         $cmd->shouldReceive('exec')
-            ->with('/usr/bin/env php test/patch.php')
+            ->with('/usr/bin/env php test/patch.php 2>&1')
             ->andSet('return_var', 3)
             ->andSet('output', array('test error!'))
             ->once();
