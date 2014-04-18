@@ -33,7 +33,9 @@ function getConfig($baseDir, $configPath = null)
 
     $filenames = array(
         $projectDir . 'etc/db-patcher.json',
-        $projectDir . 'data/etc/db-patcher.json'
+        $projectDir . 'etc/db-patcher.php',
+        $projectDir . 'data/etc/db-patcher.json',
+        $projectDir . 'data/etc/db-patcher.php',
     );
 
     if ($configPath) {
@@ -41,8 +43,15 @@ function getConfig($baseDir, $configPath = null)
     }
 
     foreach ($filenames as $filename) {
-        if (file_exists($filename) && is_readable($filename)) {
-            $config = json_decode(file_get_contents($filename), true);
+        $fileInfo = new \SplFileInfo($filename);
+        if ($fileInfo->isFile() && $fileInfo->isReadable()) {
+            $config = false;
+            if ($fileInfo->getExtension() === 'json') {
+                $config = json_decode(file_get_contents($filename), true);
+            } elseif ($fileInfo->getExtension() === 'php') {
+                $config = include $filename;
+            }
+
             if ($config) {
                 if (array_key_exists('directory', $config)) {
                     $config['directory'] = getAbsolutePath($config['directory'], dirname($filename));
