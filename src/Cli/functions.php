@@ -10,6 +10,7 @@ use DBPatcher;
  */
 function getConfiguredOptions($inputs)
 {
+    $inputs->option('-l, --list', 'Just output list of patches');
     $inputs->option('-n, --new', 'Install automatically only new patches');
     $inputs->option('-f, --force', 'Install all patches (installed, errors, changed, new)');
     $inputs->option('-i, --interactive', 'Interactive mode');

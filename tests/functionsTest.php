@@ -95,5 +95,28 @@ class DBPatcherTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($patch2, $result[1]);
     }
 
+    /**
+     * @dataProvider statusesLabels
+     */
+    public function testPatchStatusText($label, $status)
+    {
+        $this->assertSame($label, patchStatusText(PatchFile::_createForTest('n1', 'f1', 'm1', 'e1', $status)));
+    }
+
+    public function statusesLabels()
+    {
+        return array(
+            array('new', PatchFile::STATUS_NEW),
+            array('installed but changed after installation', PatchFile::STATUS_CHANGED),
+            array('installed', PatchFile::STATUS_INSTALLED),
+            array('installed with errors', PatchFile::STATUS_ERROR)
+        );
+    }
+
+    public function testPrintPatchPrintsCorrectText()
+    {
+        $this->assertSame('* n1 [new]', patchText(PatchFile::_createForTest('n1', 'f1', 'm1', 'e1')));
+    }
+
 }
 

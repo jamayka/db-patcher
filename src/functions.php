@@ -2,7 +2,6 @@
 
 namespace DBPatcher;
 
-
 /**
  * @param PatchFile[] $patchFiles
  * @param array $rowsFromDb
@@ -89,4 +88,32 @@ function getPatchNamesList($baseDir)
 
     sort($result);
     return $result;
+}
+
+/**
+ * @param PatchFile $patchFile
+ * @return string
+ */
+function patchStatusText($patchFile)
+{
+    switch ($patchFile->status) {
+        case PatchFile::STATUS_INSTALLED:
+            return 'installed';
+        case PatchFile::STATUS_CHANGED:
+            return 'installed but changed after installation';
+        case PatchFile::STATUS_ERROR:
+            return 'installed with errors';
+        default:
+            return 'new';
+    }
+}
+
+/**
+ * @param PatchFile $patchFile
+ * @return string
+ */
+function patchText($patchFile)
+{
+    $statusText = \DBPatcher\patchStatusText($patchFile);
+    return "* {$patchFile->name} [{$statusText}]";
 }

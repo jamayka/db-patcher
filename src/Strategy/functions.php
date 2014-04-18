@@ -66,21 +66,7 @@ function forceAllStrategy($patchFile)
 function interactiveStrategy($patchFile, $superStrategy, $inputs)
 {
     if (!call_user_func($superStrategy, $patchFile)) {
-        switch ($patchFile->status) {
-            case DBPatcher\PatchFile::STATUS_INSTALLED:
-                $statusText = '[installed]';
-                break;
-            case DBPatcher\PatchFile::STATUS_CHANGED:
-                $statusText = '[installed but changed after installation]';
-                break;
-            case DBPatcher\PatchFile::STATUS_ERROR:
-                $statusText = '[installed with errors]';
-                break;
-            default:
-                $statusText = '[new]';
-        }
-
-        return $inputs->confirm("Apply patch file {$patchFile->name} $statusText?");
+        return $inputs->confirm("Apply patch file {$patchFile->name}?");
     }
 
     return true;
