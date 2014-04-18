@@ -57,6 +57,7 @@ $strategy = \DBPatcher\Strategy\strategyFactory(
     '\DBPatcher\Strategy\regularStrategy',
     array(
         '-n' => '\DBPatcher\Strategy\regularStrategy',
+        '-f' => '\DBPatcher\Strategy\forceAllStrategy',
         '-i' => '\DBPatcher\Strategy\interactiveStrategy'
     ),
     $inputs,
