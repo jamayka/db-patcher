@@ -14,7 +14,9 @@ class CliTest extends \PHPUnit_Framework_TestCase
         $inputs = m::mock(function ($m) { $m->shouldIgnoreMissing(); });
         $inputs->shouldReceive('option')->withArgs(array('-l, --list', m::any()))->once();
         $inputs->shouldReceive('option')->withArgs(array('-n, --new', m::any()))->once();
-        $inputs->shouldReceive('option')->withArgs(array('-f, --force', m::any()))->once();
+        $inputs->shouldReceive('option')->withArgs(array('-c, --changed', m::any()))->once();
+        $inputs->shouldReceive('option')->withArgs(array('-e, --error', m::any()))->once();
+        $inputs->shouldReceive('option')->withArgs(array('-a, --all', m::any()))->once();
         $inputs->shouldReceive('option')->withArgs(array('-i, --interactive', m::any()))->once();
         $inputs->shouldReceive('option')->withArgs(array('-s, --stop-on-error', m::any()))->once();
         $inputs->shouldReceive('option')->withArgs(array('-c, --config [filename]', m::any()))->once();

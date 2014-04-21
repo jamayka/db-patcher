@@ -6,38 +6,44 @@ use DBPatcher;
 
 /**
  * @param DBPatcher\PatchFile $patchFile
+ * @param callable $superStrategy
  * @return bool
  */
-function regularStrategy($patchFile)
+function newStrategy($patchFile, $superStrategy)
 {
-    switch ($patchFile->status) {
-        case DBPatcher\PatchFile::STATUS_NEW:
-        case DBPatcher\PatchFile::STATUS_CHANGED:
-            return true;
-        case DBPatcher\PatchFile::STATUS_INSTALLED:
-        case DBPatcher\PatchFile::STATUS_ERROR:
-            return false;
+    if (!call_user_func($superStrategy, $patchFile)) {
+        return $patchFile->status === DBPatcher\PatchFile::STATUS_NEW;
     }
 
-    return false;
+    return true;
 }
 
 /**
  * @param DBPatcher\PatchFile $patchFile
+ * @param callable $superStrategy
  * @return bool
  */
-function strictStrategy($patchFile)
+function changedStrategy($patchFile, $superStrategy)
 {
-    switch ($patchFile->status) {
-        case DBPatcher\PatchFile::STATUS_NEW:
-            return true;
-        case DBPatcher\PatchFile::STATUS_CHANGED:
-        case DBPatcher\PatchFile::STATUS_INSTALLED:
-        case DBPatcher\PatchFile::STATUS_ERROR:
-            return false;
+    if (!call_user_func($superStrategy, $patchFile)) {
+        return $patchFile->status === DBPatcher\PatchFile::STATUS_CHANGED;
     }
 
-    return false;
+    return true;
+}
+
+/**
+ * @param DBPatcher\PatchFile $patchFile
+ * @param callable $superStrategy
+ * @return bool
+ */
+function errorStrategy($patchFile, $superStrategy)
+{
+    if (!call_user_func($superStrategy, $patchFile)) {
+        return $patchFile->status === DBPatcher\PatchFile::STATUS_ERROR;
+    }
+
+    return true;
 }
 
 /**
@@ -73,15 +79,15 @@ function interactiveStrategy($patchFile, $superStrategy, $inputs)
 }
 
 /**
- * @param callable $defaultStrategy
+ * @param array $defaultStrategies
  * @param array $strategyMap
  * @param \FusePump\Cli\Inputs $inputs
  * @param array $arguments
  * @return callable
  */
-function strategyFactory($defaultStrategy, $strategyMap = array(), $inputs = null, $arguments = array())
+function strategyFactory($defaultStrategies, $strategyMap = array(), $inputs = null, $arguments = array())
 {
-    $strategyList = array();
+    $strategyList = array(function () { return false; });
 
     $addStrategy = function ($strategy) use (&$strategyList, $arguments) {
         $args = array();
@@ -104,11 +110,17 @@ function strategyFactory($defaultStrategy, $strategyMap = array(), $inputs = nul
         };
     };
 
-    $addStrategy($defaultStrategy);
-
     foreach ($strategyMap as $option => $strategy) {
         if ($inputs->get($option)) {
             $addStrategy($strategy);
+        }
+    }
+
+    if (count($strategyList) < 2) {
+        foreach ($defaultStrategies as $option) {
+            if (array_key_exists($option, $strategyMap)) {
+                $addStrategy($strategyMap[$option]);
+            }
         }
     }
 

@@ -9,18 +9,37 @@ class StrategyTest extends \PHPUnit_Framework_TestCase
 {
 
     /**
-     * @dataProvider regularStrategyTestProvider
+     * @dataProvider newStrategyTestProvider
      */
-    public function testRegularStrategy($shouldSkip, $status)
+    public function testNewStrategy($shouldSkip, $status)
     {
         $patchFile = p\PatchFile::copyWithNewStatus(p\PatchFile::_createForTest('n1', 'f1', 'm1', 'e1'), $status);
-        $this->assertSame($shouldSkip, regularStrategy($patchFile));
+        $this->assertSame($shouldSkip, newStrategy($patchFile, function () { return false; }));
     }
 
-    public function regularStrategyTestProvider()
+    public function newStrategyTestProvider()
     {
         return array(
             array(true, p\PatchFile::STATUS_NEW),
+            array(false, p\PatchFile::STATUS_CHANGED),
+            array(false, p\PatchFile::STATUS_INSTALLED),
+            array(false, p\PatchFile::STATUS_ERROR)
+        );
+    }
+
+    /**
+     * @dataProvider changedStrategyTestProvider
+     */
+    public function testChangedStrategy($shouldSkip, $status)
+    {
+        $patchFile = p\PatchFile::copyWithNewStatus(p\PatchFile::_createForTest('n1', 'f1', 'm1', 'e1'), $status);
+        $this->assertSame($shouldSkip, changedStrategy($patchFile, function () { return false; }));
+    }
+
+    public function changedStrategyTestProvider()
+    {
+        return array(
+            array(false, p\PatchFile::STATUS_NEW),
             array(true, p\PatchFile::STATUS_CHANGED),
             array(false, p\PatchFile::STATUS_INSTALLED),
             array(false, p\PatchFile::STATUS_ERROR)
@@ -28,21 +47,21 @@ class StrategyTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @dataProvider strictStrategyTestProvider
+     * @dataProvider errorStrategyTestProvider
      */
-    public function testStrictStrategy($shouldSkip, $status)
+    public function testErrorStrategy($shouldSkip, $status)
     {
         $patchFile = p\PatchFile::copyWithNewStatus(p\PatchFile::_createForTest('n1', 'f1', 'm1', 'e1'), $status);
-        $this->assertSame($shouldSkip, strictStrategy($patchFile));
+        $this->assertSame($shouldSkip, errorStrategy($patchFile, function () { return false; }));
     }
 
-    public function strictStrategyTestProvider()
+    public function errorStrategyTestProvider()
     {
         return array(
-            array(true, p\PatchFile::STATUS_NEW),
+            array(false, p\PatchFile::STATUS_NEW),
             array(false, p\PatchFile::STATUS_CHANGED),
             array(false, p\PatchFile::STATUS_INSTALLED),
-            array(false, p\PatchFile::STATUS_ERROR)
+            array(true, p\PatchFile::STATUS_ERROR)
         );
     }
 
@@ -85,13 +104,21 @@ class StrategyTest extends \PHPUnit_Framework_TestCase
     public function testStrategyFactoryReturnsDefaultStrategy()
     {
         $m = m::mock();
-        $m->shouldReceive('call')->once();
+        $m->shouldReceive('call1')->once();
+        $m->shouldReceive('call2')->never();
 
         call_user_func(
             strategyFactory(
-                function ($patchFile) use ($m) {
-                    $m->call();
-                }
+                array('-c1'),
+                array(
+                    '-c1' => function ($patchFile) use ($m) {
+                        $m->call1();
+                    },
+                    '-c2' => function ($patchFile) use ($m) {
+                        $m->call2();
+                    }
+                ),
+                m::mock()->shouldIgnoreMissing()
             ),
             ''
         );
@@ -129,14 +156,16 @@ class StrategyTest extends \PHPUnit_Framework_TestCase
         $m->shouldReceive('callFromMap')->once();
 
         $inputs = m::mock();
+        $inputs->shouldReceive('get')->with('-d')->andReturn(true)->once();
         $inputs->shouldReceive('get')->with('-o')->andReturn(true)->once();
 
         call_user_func(
             strategyFactory(
-                function ($patchFile) use ($m) {
-                    $m->callFromDefault();
-                },
+                array(),
                 array(
+                    '-d' => function ($patchFile) use ($m) {
+                            $m->callFromDefault();
+                        },
                     '-o' => function ($patchFile, $superStrategy) use ($m) {
                             $superStrategy($patchFile);
                             $m->callFromMap();
@@ -155,11 +184,13 @@ class StrategyTest extends \PHPUnit_Framework_TestCase
 
         call_user_func(
             strategyFactory(
-                function ($patchFile, $arg1, $arg2, $arg3, $arg4) use ($m) {
-                    $m->call($arg1, $arg2, $arg3, $arg4);
-                },
-                array(),
-                null,
+                array('-d'),
+                array(
+                    '-d' => function ($patchFile, $arg1, $arg2, $arg3, $arg4) use ($m) {
+                            $m->call($arg1, $arg2, $arg3, $arg4);
+                        }
+                ),
+                m::mock()->shouldIgnoreMissing(),
                 array('arg1' => 'test', 'arg2' => true, 'arg3' => array(3))
             ),
             ''

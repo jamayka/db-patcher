@@ -55,10 +55,12 @@ try {
 
 $makeStrategy = function ($inputsInstance) use ($inputs) {
     return \DBPatcher\Strategy\strategyFactory(
-        '\DBPatcher\Strategy\regularStrategy',
+        array('-n', '-c'),
         array(
-            '-n' => '\DBPatcher\Strategy\regularStrategy',
-            '-f' => '\DBPatcher\Strategy\forceAllStrategy',
+            '-n' => '\DBPatcher\Strategy\newStrategy',
+            '-c' => '\DBPatcher\Strategy\changedStrategy',
+            '-e' => '\DBPatcher\Strategy\errorStrategy',
+            '-a' => '\DBPatcher\Strategy\forceAllStrategy',
             '-i' => '\DBPatcher\Strategy\interactiveStrategy'
         ),
         $inputs,
