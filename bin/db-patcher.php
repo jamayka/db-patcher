@@ -79,6 +79,7 @@ $printPatch = function ($patchFile) use ($output, $previewStrategy) {
     }
 
     $output->out(\DBPatcher\patchText($patchFile) . " - $actionLabel");
+
     return $actionLabel !== 'skip';
 };
 
@@ -143,9 +144,15 @@ $patchFiles = \DBPatcher\getPatchesWithStatuses(
     '\DBPatcher\getPatchWithUpdatedStatus'
 );
 
-$hasPatchesToInstall = in_array(true, array_map($printPatch, $patchFiles));
+$output->out('Following patches will be applied:');
+$amountOfPatchesToInstall = count(array_filter(array_map($printPatch, $patchFiles)));
 
-if (!$hasPatchesToInstall || (!$inputs->get('-p') && !$inputs->confirm('Apply patches?'))) {
+if ($amountOfPatchesToInstall === 0) {
+    $output->out('No patches to install.');
+    exit;
+}
+
+if (!$inputs->get('-p') && !$inputs->confirm("Apply $amountOfPatchesToInstall patch(es)?")) {
     exit;
 }
 
