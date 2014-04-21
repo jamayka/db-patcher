@@ -53,34 +53,40 @@ try {
 
 // --------------------------------------------------------------------------------------------------------------------
 
-$strategy = \DBPatcher\Strategy\strategyFactory(
-    '\DBPatcher\Strategy\regularStrategy',
-    array(
-        '-n' => '\DBPatcher\Strategy\regularStrategy',
-        '-f' => '\DBPatcher\Strategy\forceAllStrategy',
-        '-i' => '\DBPatcher\Strategy\interactiveStrategy'
-    ),
-    $inputs,
-    array('inputs' => $inputs->get('-l') ? new \DBPatcher\InputPreview($argv) : $inputs)
-);
+$makeStrategy = function ($inputsInstance) use ($inputs) {
+    return \DBPatcher\Strategy\strategyFactory(
+        '\DBPatcher\Strategy\regularStrategy',
+        array(
+            '-n' => '\DBPatcher\Strategy\regularStrategy',
+            '-f' => '\DBPatcher\Strategy\forceAllStrategy',
+            '-i' => '\DBPatcher\Strategy\interactiveStrategy'
+        ),
+        $inputs,
+        array('inputs' => $inputsInstance)
+    );
+};
+
+$previewStrategy = $makeStrategy(new \DBPatcher\InputPreview($argv));
+$applyStrategy = $makeStrategy($inputs);
 
 // --------------------------------------------------------------------------------------------------------------------
 
-$printPatch = function ($patchFile) use ($output, $strategy) {
+$printPatch = function ($patchFile) use ($output, $previewStrategy) {
     try {
-        $actionLabel = $strategy($patchFile) ? 'install' : 'skip';
+        $actionLabel = $previewStrategy($patchFile) ? 'install' : 'skip';
     } catch (\DBPatcher\InputPreview\Exception $e) {
         $actionLabel = 'interactive';
     }
 
     $output->out(\DBPatcher\patchText($patchFile) . " - $actionLabel");
+    return $actionLabel !== 'skip';
 };
 
-$runPatch = function ($patchFile) use ($inputs, $output, $dbConnection, $strategy) {
+$runPatch = function ($patchFile) use ($inputs, $output, $dbConnection, $applyStrategy) {
     $output->out("==================================");
     $output->out(\DBPatcher\patchText($patchFile));
 
-    if (!$strategy($patchFile)) {
+    if (!$applyStrategy($patchFile)) {
         $output->out('Skipping');
         return true;
     }
@@ -137,12 +143,14 @@ $patchFiles = \DBPatcher\getPatchesWithStatuses(
     '\DBPatcher\getPatchWithUpdatedStatus'
 );
 
+$hasPatchesToInstall = in_array(true, array_map($printPatch, $patchFiles));
+
+if (!$hasPatchesToInstall || (!$inputs->get('-p') && !$inputs->confirm('Apply patches?'))) {
+    exit;
+}
+
 foreach ($patchFiles as $patchFile) {
-    if ($inputs->get('-l')) {
-        $printPatch($patchFile);
-    } else {
-        if (!$runPatch($patchFile) && $inputs->get('-s')) {
-            break;
-        }
+    if (!$runPatch($patchFile) && $inputs->get('-s')) {
+        break;
     }
 }
