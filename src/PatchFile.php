@@ -63,9 +63,7 @@ class PatchFile
             $patchFile->_filename = $filename;
             $patchFile->_name = $name;
             $patchFile->_md5 = md5_file($filename);
-
-            $fileInfo = new \SplFileInfo($filename);
-            $patchFile->_extension = $fileInfo->getExtension();
+            $patchFile->_extension = pathinfo($filename, PATHINFO_EXTENSION);
 
             return $patchFile;
         }

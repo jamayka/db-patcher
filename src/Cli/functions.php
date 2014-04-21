@@ -43,12 +43,12 @@ function getConfig($baseDir, $configPath = null)
     }
 
     foreach ($filenames as $filename) {
-        $fileInfo = new \SplFileInfo($filename);
-        if ($fileInfo->isFile() && $fileInfo->isReadable()) {
+        if (is_file($filename) && is_readable($filename)) {
             $config = false;
-            if ($fileInfo->getExtension() === 'json') {
+            $extension = pathinfo($filename, PATHINFO_EXTENSION);
+            if ($extension === 'json') {
                 $config = json_decode(file_get_contents($filename), true);
-            } elseif ($fileInfo->getExtension() === 'php') {
+            } elseif ($extension === 'php') {
                 $config = include $filename;
             }
 
