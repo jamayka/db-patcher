@@ -64,7 +64,7 @@ $makeStrategy = function ($inputsInstance) use ($inputs) {
     );
 };
 
-$previewStrategy = $makeStrategy(new \DBPatcher\InputPreview($argv));
+$previewStrategy = $makeStrategy(new \DBPatcher\InputPreview($inputs));
 $applyStrategy = $makeStrategy($inputs);
 
 // --------------------------------------------------------------------------------------------------------------------
@@ -149,7 +149,7 @@ if (($pattern = \DBPatcher\Cli\getPatchFilePatternOption($inputs))) {
 }
 
 if (empty($patchFiles)) {
-    echo 'No patches to apply.';
+    $output->out('No patches to apply.');
     exit;
 }
 
@@ -165,11 +165,11 @@ if (\DBPatcher\Cli\getListOnlyOption($inputs)) {
 }
 
 if (!\DBPatcher\Cli\getPatchFileToApplyOption($inputs)) {
-    $output->out('Following patches will be ' . \DBPatcher\Cli\getMarkPatchesOption($inputs) ? 'marked' : 'applied');
+    $output->out('Following patches will be ' . (\DBPatcher\Cli\getMarkPatchesOption($inputs) ? 'marked' : 'applied'));
     $amountOfPatchesToInstall = count(array_filter(array_map($printPatch, $patchFiles)));
 
     if ($amountOfPatchesToInstall === 0) {
-        $output->out('No patches to ' . \DBPatcher\Cli\getMarkPatchesOption($inputs) ? 'mark' : 'apply');
+        $output->out('No patches to ' . (\DBPatcher\Cli\getMarkPatchesOption($inputs) ? 'mark' : 'apply'));
         exit;
     }
 
