@@ -148,6 +148,11 @@ if (($pattern = \DBPatcher\Cli\getPatchFilePatternOption($inputs))) {
         });
 }
 
+if (empty($patchFiles)) {
+    echo 'No patches to install.';
+    exit;
+}
+
 $patchFiles = \DBPatcher\getPatchesWithStatuses(
     $patchFiles,
     DBPatcher\Storage\getRowsFromDbForPatchFiles($patchFiles, $dbConnection),
