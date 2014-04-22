@@ -21,8 +21,8 @@ class CliTest extends \PHPUnit_Framework_TestCase
         $inputs->shouldReceive('option')->withArgs(array('-m, --mark-installed', m::any()))->once();
         $inputs->shouldReceive('option')->withArgs(array('-s, --stop-on-error', m::any()))->once();
         $inputs->shouldReceive('option')->withArgs(array('--config [filename]', m::any()))->once();
-        $inputs->shouldReceive('option')->withArgs(array('-d, --dir [path]', m::any()))->once();
         $inputs->shouldReceive('option')->withArgs(array('-p, --patch [name]', m::any()))->once();
+        $inputs->shouldReceive('option')->withArgs(array('--pattern [pattern]', m::any()))->once();
 
         $this->assertSame($inputs, getConfiguredOptions($inputs));
     }

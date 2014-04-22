@@ -120,12 +120,10 @@ $runPatch = function ($patchFile) use ($inputs, $output, $dbConnection, $applySt
 
 // --------------------------------------------------------------------------------------------------------------------
 
-if ($inputs->get('-d')) {
-    $patchesDir = $inputs->get('-d');
-} elseif (array_key_exists('directory', $config)) {
+if (array_key_exists('directory', $config)) {
     $patchesDir = $config['directory'];
 } else {
-    $output->error('Patches directory should be specified in config or in command option!');
+    $output->error('Patches directory should be specified in config!');
     exit(5);
 }
 
@@ -146,22 +144,35 @@ if ($inputs->get('-p')) {
     );
 }
 
+if (($pattern = $inputs->get('--pattern'))) {
+    $patchFiles = array_filter($patchFiles, function ($patchFile) use ($pattern) {
+            return fnmatch($pattern, $patchFile->name, FNM_CASEFOLD | FNM_PATHNAME);
+        });
+}
+
 $patchFiles = \DBPatcher\getPatchesWithStatuses(
     $patchFiles,
     DBPatcher\Storage\getRowsFromDbForPatchFiles($patchFiles, $dbConnection),
     '\DBPatcher\getPatchWithUpdatedStatus'
 );
 
-$output->out('Following patches will be applied:');
-$amountOfPatchesToInstall = count(array_filter(array_map($printPatch, $patchFiles)));
-
-if ($amountOfPatchesToInstall === 0) {
-    $output->out('No patches to install.');
+if ($inputs->get('-l')) {
+    $output->out(count(array_filter(array_map($printPatch, $patchFiles))) . ' patch(es) to install');
     exit;
 }
 
-if (!$inputs->get('-p') && !$inputs->confirm("Apply $amountOfPatchesToInstall patch(es)?")) {
-    exit;
+if (!$inputs->get('-p')) {
+    $output->out('Following patches will be applied:');
+    $amountOfPatchesToInstall = count(array_filter(array_map($printPatch, $patchFiles)));
+
+    if ($amountOfPatchesToInstall === 0) {
+        $output->out('No patches to install.');
+        exit;
+    }
+
+    if (!$inputs->confirm("Apply $amountOfPatchesToInstall patch(es)?")) {
+        exit;
+    }
 }
 
 foreach ($patchFiles as $patchFile) {
