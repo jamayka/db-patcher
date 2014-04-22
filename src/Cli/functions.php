@@ -19,8 +19,8 @@ function getConfiguredOptions($inputs)
     $inputs->option('-m, --mark-installed', 'Do not actually apply patch just mark as installed');
     $inputs->option('-s, --stop-on-error', 'Stop patches on error');
     $inputs->option('-p, --patch [name]', 'Patch name to run (relative to patches directory)');
-    $inputs->option('--pattern [pattern]', 'Shell wildcard pattern for patch file name');
-    $inputs->option('--config [filename]', 'Config json filename');
+    $inputs->option('-pt, --pattern [pattern]', 'Shell wildcard pattern for patch file name');
+    $inputs->option('-cf, --config [filename]', 'Config json filename');
 
     return $inputs;
 }
@@ -38,7 +38,7 @@ function optionsStrategiesMap()
 
 function getConfigOption($inputs)
 {
-    return $inputs->get('-c');
+    return $inputs->get('--config');
 }
 
 function getMarkPatchesOption($inputs)

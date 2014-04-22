@@ -20,9 +20,9 @@ class CliTest extends \PHPUnit_Framework_TestCase
         $inputs->shouldReceive('option')->withArgs(array('-i, --interactive', m::any()))->once();
         $inputs->shouldReceive('option')->withArgs(array('-m, --mark-installed', m::any()))->once();
         $inputs->shouldReceive('option')->withArgs(array('-s, --stop-on-error', m::any()))->once();
-        $inputs->shouldReceive('option')->withArgs(array('--config [filename]', m::any()))->once();
+        $inputs->shouldReceive('option')->withArgs(array('-cf, --config [filename]', m::any()))->once();
         $inputs->shouldReceive('option')->withArgs(array('-p, --patch [name]', m::any()))->once();
-        $inputs->shouldReceive('option')->withArgs(array('--pattern [pattern]', m::any()))->once();
+        $inputs->shouldReceive('option')->withArgs(array('-pt, --pattern [pattern]', m::any()))->once();
 
         $this->assertSame($inputs, getConfiguredOptions($inputs));
     }
@@ -107,7 +107,7 @@ class CliTest extends \PHPUnit_Framework_TestCase
     public function testGetConfigOptionCallsCorrectOption()
     {
         $inputs = m::mock();
-        $inputs->shouldReceive('get')->with('-c')->once()->andReturn('some');
+        $inputs->shouldReceive('get')->with('--config')->once()->andReturn('some');
 
         $this->assertSame('some', getConfigOption($inputs));
     }
