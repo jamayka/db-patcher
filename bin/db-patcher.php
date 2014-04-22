@@ -95,7 +95,7 @@ $runPatch = function ($patchFile) use ($inputs, $output, $dbConnection, $applySt
     }
 
     list($patchFile, $errorMsg) = array_merge(
-        \DBPatcher\Apply\applyPatch($patchFile, $dbConnection, new \Ymmtmsys\Command\Command()),
+        \DBPatcher\Apply\applyPatch($patchFile, $dbConnection, new \Symfony\Component\Process\Process(''), STDOUT, STDERR),
         array(null)
     );
 

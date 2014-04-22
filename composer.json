@@ -13,7 +13,7 @@
         "php": ">=5.3.3",
         "fusepump/cli.php": "0.5.*",
         "doctrine/dbal": "2.3.*",
-        "ymmtmsys/command": "0.2.*",
+        "symfony/process": "2.4.*",
         "jdorn/sql-formatter": "v1.2.17"
     },
     "require-dev": {

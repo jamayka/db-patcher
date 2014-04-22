@@ -3,17 +3,20 @@
 namespace DBPatcher\Apply;
 
 use DBPatcher;
+use Symfony\Component\Process\Process;
 
 /**
  * @param DBPatcher\PatchFile $patchFile
  * @param \Doctrine\DBAL\Connection $connection
- * @param \Ymmtmsys\Command\Command $cmd
+ * @param \Symfony\Component\Process\Process $process
+ * @param resource $stdout
+ * @param resource $stderr
  * @return array
  */
-function applyPatch($patchFile, $connection, $cmd)
+function applyPatch($patchFile, $connection, $process, $stdout, $stderr)
 {
     if ($patchFile->extension === 'php') {
-        return applyPhpPatch($patchFile, $cmd);
+        return applyPhpPatch($patchFile, $process, $stdout, $stderr);
     }
 
     if ($patchFile->extension === 'sql') {
@@ -25,20 +28,31 @@ function applyPatch($patchFile, $connection, $cmd)
 
 /**
  * @param DBPatcher\PatchFile $patchFile
- * @param \Ymmtmsys\Command\Command $cmd
+ * @param \Symfony\Component\Process\Process $process
+ * @param resource $stdout
+ * @param resource $stderr
  * @return DBPatcher\PatchFile
  */
-function applyPhpPatch($patchFile, $cmd)
+function applyPhpPatch($patchFile, $process, $stdout = null, $stderr = null)
 {
     if ($patchFile->extension === 'php') {
-        $cmd->exec('/usr/bin/env php ' . $patchFile->filename . ' 2>&1');
 
-        if ($cmd->return_var == 0) {
+        $process->setCommandLine('/usr/bin/env php ' . $patchFile->filename);
+        $process->start(
+            function ($type, $buffer) use ($stdout, $stderr) {
+                $pipe = $type === Process::ERR && is_resource($stderr) ? $stderr : $stdout;
+                if ($pipe) {
+                    fputs($pipe, $buffer);
+                }
+            }
+        );
+
+        if ($process->wait() === 0) {
             return array(DBPatcher\PatchFile::copyWithNewStatus($patchFile, DBPatcher\PatchFile::STATUS_INSTALLED));
         } else {
             return array(
                 DBPatcher\PatchFile::copyWithNewStatus($patchFile, DBPatcher\PatchFile::STATUS_ERROR),
-                implode(PHP_EOL, $cmd->output)
+                $process->getErrorOutput()
             );
         }
     }
@@ -58,9 +72,10 @@ function applySqlPatch($patchFile, $connection)
         $connection->beginTransaction();
 
         try {
-            array_walk($queries, function ($q) use ($connection) { $connection->executeQuery($q); });
+            array_walk($queries, function ($query) use ($connection) { $connection->executeQuery($query); });
         } catch (\Doctrine\DBAL\DBALException $e) {
             $connection->rollBack();
+
             return array(
                 DBPatcher\PatchFile::copyWithNewStatus($patchFile, DBPatcher\PatchFile::STATUS_ERROR),
                 $e->getMessage()
