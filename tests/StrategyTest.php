@@ -107,13 +107,14 @@ class StrategyTest extends \PHPUnit_Framework_TestCase
         $m->shouldReceive('call1')->once();
         $m->shouldReceive('call2')->never();
 
+        $c1fn = function ($patchFile) use ($m) {
+            $m->call1();
+        };
         call_user_func(
             strategyFactory(
-                array('-c1'),
+                array($c1fn),
                 array(
-                    '-c1' => function ($patchFile) use ($m) {
-                        $m->call1();
-                    },
+                    '-c1' => $c1fn,
                     '-c2' => function ($patchFile) use ($m) {
                         $m->call2();
                     }
@@ -135,9 +136,11 @@ class StrategyTest extends \PHPUnit_Framework_TestCase
 
         call_user_func(
             strategyFactory(
-                function ($patchFile) use ($m) {
-                    $m->callFromDefault();
-                },
+                array(
+                    function ($patchFile) use ($m) {
+                        $m->callFromDefault();
+                    }
+                ),
                 array(
                     '-o' => function ($patchFile) use ($m) {
                             $m->callFromMap();
@@ -184,12 +187,12 @@ class StrategyTest extends \PHPUnit_Framework_TestCase
 
         call_user_func(
             strategyFactory(
-                array('-d'),
                 array(
-                    '-d' => function ($patchFile, $arg1, $arg2, $arg3, $arg4) use ($m) {
-                            $m->call($arg1, $arg2, $arg3, $arg4);
-                        }
+                    function ($patchFile, $arg1, $arg2, $arg3, $arg4) use ($m) {
+                        $m->call($arg1, $arg2, $arg3, $arg4);
+                    }
                 ),
+                array(),
                 m::mock()->shouldIgnoreMissing(),
                 array('arg1' => 'test', 'arg2' => true, 'arg3' => array(3))
             ),

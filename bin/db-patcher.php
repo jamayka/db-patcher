@@ -1,6 +1,8 @@
 #!/usr/bin/env php
 <?php
 
+// TODO fat controller needs refactoring!
+
 $baseDir = dirname(__DIR__);
 
 foreach (array($baseDir . '/../../autoload.php', $baseDir . '/vendor/autoload.php') as $file) {
@@ -27,7 +29,7 @@ if (!$inputs->parse()) {
 
 // --------------------------------------------------------------------------------------------------------------------
 
-$config = \DBPatcher\Cli\getConfig($baseDir, $inputs->get('-c'));
+$config = \DBPatcher\Cli\getConfig($baseDir, \DBPatcher\Cli\getConfigOption($inputs));
 if ($config === null) {
     $output->error('Wrong config file!');
     exit(2);
@@ -55,14 +57,8 @@ try {
 
 $makeStrategy = function ($inputsInstance) use ($inputs) {
     return \DBPatcher\Strategy\strategyFactory(
-        array('-n', '-c'),
-        array(
-            '-n' => '\DBPatcher\Strategy\newStrategy',
-            '-c' => '\DBPatcher\Strategy\changedStrategy',
-            '-e' => '\DBPatcher\Strategy\errorStrategy',
-            '-a' => '\DBPatcher\Strategy\forceAllStrategy',
-            '-i' => '\DBPatcher\Strategy\interactiveStrategy'
-        ),
+        array('\DBPatcher\Strategy\newStrategy', '\DBPatcher\Strategy\changedStrategy'),
+        \DBPatcher\Cli\optionsStrategiesMap(),
         $inputs,
         array('inputs' => $inputsInstance)
     );
@@ -94,7 +90,7 @@ $runPatch = function ($patchFile) use ($inputs, $output, $dbConnection, $applySt
         return true;
     }
 
-    if ($inputs->get('-m')) {
+    if (\DBPatcher\Cli\getMarkPatchesOption($inputs)) {
         $patchFile = \DBPatcher\PatchFile::copyWithNewStatus($patchFile, \DBPatcher\PatchFile::STATUS_INSTALLED);
     } else {
         list($patchFile, $errorMsg) = array_merge(
@@ -134,8 +130,10 @@ if (!is_dir($patchesDir) || !is_readable($patchesDir)) {
 
 // --------------------------------------------------------------------------------------------------------------------
 
-if ($inputs->get('-p')) {
-    $patchFiles = array(\DBPatcher\PatchFile::createFromFS($inputs->get('-p'), $patchesDir));
+if (\DBPatcher\Cli\getPatchFileToApplyOption($inputs)) {
+    $patchFiles = array(
+        \DBPatcher\PatchFile::createFromFS(\DBPatcher\Cli\getPatchFileToApplyOption($inputs), $patchesDir)
+    );
 } else {
     $patchFiles = \DBPatcher\getPatchFiles(
         \DBPatcher\getPatchNamesList($patchesDir),
@@ -144,7 +142,7 @@ if ($inputs->get('-p')) {
     );
 }
 
-if (($pattern = $inputs->get('--pattern'))) {
+if (($pattern = \DBPatcher\Cli\getPatchFilePatternOption($inputs))) {
     $patchFiles = array_filter($patchFiles, function ($patchFile) use ($pattern) {
             return fnmatch($pattern, $patchFile->name, FNM_CASEFOLD | FNM_PATHNAME);
         });
@@ -156,12 +154,12 @@ $patchFiles = \DBPatcher\getPatchesWithStatuses(
     '\DBPatcher\getPatchWithUpdatedStatus'
 );
 
-if ($inputs->get('-l')) {
+if (\DBPatcher\Cli\getListOnlyOption($inputs)) {
     $output->out(count(array_filter(array_map($printPatch, $patchFiles))) . ' patch(es) to install');
     exit;
 }
 
-if (!$inputs->get('-p')) {
+if (!\DBPatcher\Cli\getPatchFileToApplyOption($inputs)) {
     $output->out('Following patches will be applied:');
     $amountOfPatchesToInstall = count(array_filter(array_map($printPatch, $patchFiles)));
 
@@ -176,7 +174,7 @@ if (!$inputs->get('-p')) {
 }
 
 foreach ($patchFiles as $patchFile) {
-    if (!$runPatch($patchFile) && $inputs->get('-s')) {
+    if (!$runPatch($patchFile) && \DBPatcher\Cli\getStopOnErrorOption($inputs)) {
         break;
     }
 }

@@ -25,6 +25,47 @@ function getConfiguredOptions($inputs)
     return $inputs;
 }
 
+function optionsStrategiesMap()
+{
+    return array(
+        '-n' => '\DBPatcher\Strategy\newStrategy',
+        '-c' => '\DBPatcher\Strategy\changedStrategy',
+        '-e' => '\DBPatcher\Strategy\errorStrategy',
+        '-a' => '\DBPatcher\Strategy\forceAllStrategy',
+        '-i' => '\DBPatcher\Strategy\interactiveStrategy'
+    );
+}
+
+function getConfigOption($inputs)
+{
+    return $inputs->get('-c');
+}
+
+function getMarkPatchesOption($inputs)
+{
+    return $inputs->get('-m');
+}
+
+function getPatchFileToApplyOption($inputs)
+{
+    return $inputs->get('-p');
+}
+
+function getPatchFilePatternOption($inputs)
+{
+    return $inputs->get('--pattern');
+}
+
+function getListOnlyOption($inputs)
+{
+    return $inputs->get('-l');
+}
+
+function getStopOnErrorOption($inputs)
+{
+    return $inputs->get('-s');
+}
+
 // --------------------------------------------------------------------------------------------------------------------
 
 /**

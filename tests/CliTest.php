@@ -90,6 +90,68 @@ class CliTest extends \PHPUnit_Framework_TestCase
         $this->assertSame(array('test' => 'value'), getConfig(vfs::url('root/vendor/xiag/db-patcher')));
     }
 
+    public function testOptionsStrategiesMap()
+    {
+        $this->assertSame(
+            array(
+                '-n' => '\DBPatcher\Strategy\newStrategy',
+                '-c' => '\DBPatcher\Strategy\changedStrategy',
+                '-e' => '\DBPatcher\Strategy\errorStrategy',
+                '-a' => '\DBPatcher\Strategy\forceAllStrategy',
+                '-i' => '\DBPatcher\Strategy\interactiveStrategy'
+            ),
+            optionsStrategiesMap()
+        );
+    }
+
+    public function testGetConfigOptionCallsCorrectOption()
+    {
+        $inputs = m::mock();
+        $inputs->shouldReceive('get')->with('-c')->once()->andReturn('some');
+
+        $this->assertSame('some', getConfigOption($inputs));
+    }
+
+    public function testMarkPatchesOptionCallsCorrectOption()
+    {
+        $inputs = m::mock();
+        $inputs->shouldReceive('get')->with('-m')->once()->andReturn(true);
+
+        $this->assertTrue(getMarkPatchesOption($inputs));
+    }
+
+    public function testGetPatchFileToApplyOptionCallsCorrectOption()
+    {
+        $inputs = m::mock();
+        $inputs->shouldReceive('get')->with('-p')->once()->andReturn('some');
+
+        $this->assertSame('some', getPatchFileToApplyOption($inputs));
+    }
+
+    public function testGetPatchFilePatternOptionCallsCorrectOption()
+    {
+        $inputs = m::mock();
+        $inputs->shouldReceive('get')->with('--pattern')->once()->andReturn('some');
+
+        $this->assertSame('some', getPatchFilePatternOption($inputs));
+    }
+
+    public function testGetListOnlyOptionCallsCorrectOption()
+    {
+        $inputs = m::mock();
+        $inputs->shouldReceive('get')->with('-l')->once()->andReturn(true);
+
+        $this->assertTrue(getListOnlyOption($inputs));
+    }
+
+    public function testGetStopOnErrorOptionCallsCorrectOption()
+    {
+        $inputs = m::mock();
+        $inputs->shouldReceive('get')->with('-s')->once()->andReturn(true);
+
+        $this->assertTrue(getStopOnErrorOption($inputs));
+    }
+
     private static function rootProjectFileStructure($add = array())
     {
         return array_merge($add, array('vendor' => array('xiag' => array('db-patcher' => array()))));

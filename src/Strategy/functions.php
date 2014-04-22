@@ -117,10 +117,8 @@ function strategyFactory($defaultStrategies, $strategyMap = array(), $inputs = n
     }
 
     if (count($strategyList) < 2) {
-        foreach ($defaultStrategies as $option) {
-            if (array_key_exists($option, $strategyMap)) {
-                $addStrategy($strategyMap[$option]);
-            }
+        foreach ($defaultStrategies as $strategy) {
+            $addStrategy($strategy);
         }
     }
 
