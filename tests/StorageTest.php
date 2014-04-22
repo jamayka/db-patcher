@@ -8,10 +8,10 @@ use DBPatcher;
 class StorageTest extends \PHPUnit_Framework_TestCase
 {
 
-    function testGetDbConnectionChecksForPatcherTable()
+    function testGetDbConnectionChecksForPatcherVersion()
     {
         $connection = m::mock()->shouldIgnoreMissing();
-        $connection->shouldReceive('executeQuery')->with('SELECT id FROM db_patcher LIMIT 1')->once();
+        $connection->shouldReceive('fetchColumn')->with('SELECT db_patcher_version()')->once();
 
         getDbConnection($connection);
     }
@@ -19,11 +19,38 @@ class StorageTest extends \PHPUnit_Framework_TestCase
     function testGetDbConnectionShouldCreateStructureIfNeeded()
     {
         $connection = m::mock()->shouldIgnoreMissing();
-        $connection->shouldReceive('executeQuery')
-            ->with('SELECT id FROM db_patcher LIMIT 1')
+        $connection->shouldReceive('fetchColumn')
+            ->with('SELECT db_patcher_version()')
             ->once()
             ->andThrow(new \Doctrine\DBAL\DBALException());
+        $connection->shouldReceive('executeQuery')->with('/^CREATE OR REPLACE FUNCTION db_patcher_version\(\)/');
         $connection->shouldReceive('executeQuery')->with('/^CREATE TABLE db_patcher/');
+
+        getDbConnection($connection);
+    }
+
+    public function testGetDbPatcherVersionReturnsCorrectVersion()
+    {
+        $this->assertSame(-1, version_compare('0.0.1', getDbPatcherVersion()));
+    }
+
+    public function testUpdateDbPatcherDatabaseCallsAtLeastFirstPatch()
+    {
+        $connection = m::mock()->shouldIgnoreMissing();
+        $connection->shouldReceive('executeQuery')
+            ->with('ALTER TABLE db_patcher DROP COLUMN modified_tmstmp')
+            ->atLeast(1);
+
+        updateDbPatcherDatabase($connection, '0.0.1');
+    }
+
+    public function testGetDbConnectionCallsPatchesApplyIfVersionLower()
+    {
+        $connection = m::mock()->shouldIgnoreMissing();
+        $connection->shouldReceive('fetchColumn')->with('SELECT db_patcher_version()')->andReturn('0.0.1')->once();
+        $connection->shouldReceive('executeQuery')
+            ->with('ALTER TABLE db_patcher DROP COLUMN modified_tmstmp')
+            ->atLeast(1);
 
         getDbConnection($connection);
     }

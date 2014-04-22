@@ -3,16 +3,30 @@
 namespace DBPatcher\Storage;
 
 use DBPatcher;
+use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\DBALException;
 
 /**
- * @param \Doctrine\DBAL\Connection $connection
- * @return \Doctrine\DBAL\Connection
+ * @return string
+ */
+function getDbPatcherVersion()
+{
+    return '0.0.2';
+}
+
+/**
+ * @param Connection $connection
+ * @return Connection
  */
 function getDbConnection($connection)
 {
+    $currentVersion = getDbPatcherVersion();
+
     try {
-        $connection->executeQuery('SELECT id FROM db_patcher LIMIT 1');
-    } catch (\Doctrine\DBAL\DBALException $e) {
+        $version = $connection->fetchColumn('SELECT db_patcher_version()');
+    } catch (DBALException $e) {
+        createDbPatcherVersionSqlFunction($connection);
+
         $connection->executeQuery(<<<SQL
 CREATE TABLE db_patcher
 (
@@ -20,21 +34,57 @@ CREATE TABLE db_patcher
   "name" text NOT NULL,
   status smallint NOT NULL DEFAULT 0,
   md5 text NOT NULL,
-  modified_tmstmp timestamp without time zone,
   installed_tmstmp timestamp without time zone,
   CONSTRAINT pk_db_patch PRIMARY KEY (id ),
   CONSTRAINT ak_key_2_db_patch UNIQUE ("name")
 )
 SQL
         );
+
+        $version = $currentVersion;
+    }
+
+    if (version_compare($currentVersion, $version) > 0) {
+        updateDbPatcherDatabase($connection, $version);
+        createDbPatcherVersionSqlFunction($connection);
     }
 
     return $connection;
 }
 
 /**
+ * @param Connection $connection
+ */
+function createDbPatcherVersionSqlFunction($connection)
+{
+    $currentVersion = getDbPatcherVersion();
+
+    $connection->executeQuery(<<<SQL
+CREATE OR REPLACE FUNCTION db_patcher_version() RETURNS double AS $$ SELECT '$currentVersion'; $$ LANGUAGE SQL;
+SQL
+    );
+}
+
+/**
+ * @param Connection $connection
+ * @param string $fromVersion
+ */
+function updateDbPatcherDatabase($connection, $fromVersion)
+{
+    $patches = array(
+        '0.0.1' => array('ALTER TABLE db_patcher DROP COLUMN modified_tmstmp')
+    );
+
+    foreach ($patches as $version => $sqls) {
+        if (version_compare($version, $fromVersion) >= 0) {
+            array_walk($sqls, function ($sql) use ($connection) { $connection->executeQuery($sql); });
+        }
+    }
+}
+
+/**
  * @param DBPatcher\PatchFile[] $patchFiles
- * @param \Doctrine\DBAL\Connection $connection
+ * @param Connection $connection
  * @return array
  */
 function getRowsFromDbForPatchFiles($patchFiles, $connection)
@@ -42,7 +92,7 @@ function getRowsFromDbForPatchFiles($patchFiles, $connection)
     $rowsFromDb = $connection->executeQuery(
         'SELECT "name", status, md5 FROM db_patcher WHERE "name" IN (?)',
         array(array_map(function ($p) { return $p->name; }, $patchFiles)),
-        array(\Doctrine\DBAL\Connection::PARAM_STR_ARRAY)
+        array(Connection::PARAM_STR_ARRAY)
     )->fetchAll();
 
     if (!empty($rowsFromDb)) {
@@ -53,7 +103,7 @@ function getRowsFromDbForPatchFiles($patchFiles, $connection)
 }
 
 /**
- * @param \Doctrine\DBAL\Connection $connection
+ * @param Connection $connection
  * @param DBPatcher\PatchFile $patchFile
  */
 function savePatchFile($connection, $patchFile)
