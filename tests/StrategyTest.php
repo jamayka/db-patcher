@@ -86,7 +86,7 @@ class StrategyTest extends \PHPUnit_Framework_TestCase
 
     public function testInteractiveStrategyShouldAskSuperStrategyAndThenReturnConfirmResult()
     {
-        $inputs = m::mock();
+        $inputs = m::mock()->shouldIgnoreMissing();
         $inputs->shouldReceive('confirm')->andReturn(false)->once();
 
         $falseStrategy = m::mock();

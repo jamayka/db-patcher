@@ -149,7 +149,7 @@ if (($pattern = \DBPatcher\Cli\getPatchFilePatternOption($inputs))) {
 }
 
 if (empty($patchFiles)) {
-    echo 'No patches to install.';
+    echo 'No patches to apply.';
     exit;
 }
 
@@ -160,20 +160,24 @@ $patchFiles = \DBPatcher\getPatchesWithStatuses(
 );
 
 if (\DBPatcher\Cli\getListOnlyOption($inputs)) {
-    $output->out(count(array_filter(array_map($printPatch, $patchFiles))) . ' patch(es) to install');
+    $output->out(count(array_filter(array_map($printPatch, $patchFiles))) . ' patch(es) to apply');
     exit;
 }
 
 if (!\DBPatcher\Cli\getPatchFileToApplyOption($inputs)) {
-    $output->out('Following patches will be applied:');
+    $output->out('Following patches will be ' . \DBPatcher\Cli\getMarkPatchesOption($inputs) ? 'marked' : 'applied');
     $amountOfPatchesToInstall = count(array_filter(array_map($printPatch, $patchFiles)));
 
     if ($amountOfPatchesToInstall === 0) {
-        $output->out('No patches to install.');
+        $output->out('No patches to ' . \DBPatcher\Cli\getMarkPatchesOption($inputs) ? 'mark' : 'apply');
         exit;
     }
 
-    if (!$inputs->confirm("Apply $amountOfPatchesToInstall patch(es)?")) {
+    if (
+        !$inputs->confirm(
+            (\DBPatcher\Cli\getMarkPatchesOption($inputs) ? 'Mark' : 'Apply') . " $amountOfPatchesToInstall patch(es)?"
+        )
+    ) {
         exit;
     }
 }

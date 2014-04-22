@@ -72,7 +72,9 @@ function forceAllStrategy($patchFile)
 function interactiveStrategy($patchFile, $superStrategy, $inputs)
 {
     if (!call_user_func($superStrategy, $patchFile)) {
-        return $inputs->confirm("Apply patch file {$patchFile->name}?");
+        return $inputs->confirm(
+            (DBPatcher\Cli\getMarkPatchesOption($inputs) ? 'Mark' : 'Apply') . " patch file {$patchFile->name}?"
+        );
     }
 
     return true;
