@@ -56,7 +56,7 @@ Usage
         -i, --interactive Interactive mode
         -m, --mark-installed Do not actually apply patch just mark as installed
         -s, --stop-on-error Stop patches on error
-        -d, --dir [path] Patches directory path
         -p, --patch [name] Patch name to run (relative to patches directory)
+        --pattern [pattern] Shell wildcard pattern for patch file name
         --config [filename] Config json filename
         -h, --help Output usage information

@@ -25,6 +25,8 @@ function getConfiguredOptions($inputs)
     return $inputs;
 }
 
+// --------------------------------------------------------------------------------------------------------------------
+
 /**
  * @param string $baseDir
  * @param string $configPath
@@ -67,6 +69,8 @@ function getConfig($baseDir, $configPath = null)
 
     return null;
 }
+
+// --------------------------------------------------------------------------------------------------------------------
 
 /**
  * @param string $path
