@@ -97,7 +97,7 @@ function strategyFactory($defaultStrategies, $strategyMap = array(), $inputs = n
             if ($param->getName() === 'patchFile') {
                 continue;
             } elseif ($param->getName() === 'superStrategy') {
-                $args[] = array_pop($strategyList);
+                $args[] = end($strategyList);
             } elseif (array_key_exists($param->getName(), $arguments)) {
                 $args[] = $arguments[$param->getName()];
             } else {
@@ -124,5 +124,5 @@ function strategyFactory($defaultStrategies, $strategyMap = array(), $inputs = n
         }
     }
 
-    return array_pop($strategyList);
+    return end($strategyList);
 }
