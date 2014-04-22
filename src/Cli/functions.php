@@ -16,6 +16,7 @@ function getConfiguredOptions($inputs)
     $inputs->option('-e, --error', 'Install error patches');
     $inputs->option('-a, --all', 'Install all patches (installed, errors, changed, new)');
     $inputs->option('-i, --interactive', 'Interactive mode');
+    $inputs->option('-m, --mark-installed', 'Do not actually apply patch just mark as installed');
     $inputs->option('-s, --stop-on-error', 'Stop patches on error');
     $inputs->option('-d, --dir [path]', 'Patches directory path');
     $inputs->option('-p, --patch [name]', 'Patch name to run (relative to patches directory)');

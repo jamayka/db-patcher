@@ -54,6 +54,7 @@ Usage
         -e, --error Install error patches
         -a, --all Install all patches (installed, errors, changed, new)
         -i, --interactive Interactive mode
+        -m, --mark-installed Do not actually apply patch just mark as installed
         -s, --stop-on-error Stop patches on error
         -d, --dir [path] Patches directory path
         -p, --patch [name] Patch name to run (relative to patches directory)

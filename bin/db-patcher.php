@@ -94,17 +94,23 @@ $runPatch = function ($patchFile) use ($inputs, $output, $dbConnection, $applySt
         return true;
     }
 
-    list($patchFile, $errorMsg) = array_merge(
-        \DBPatcher\Apply\applyPatch($patchFile, $dbConnection, new \Symfony\Component\Process\Process(''), STDOUT, STDERR),
-        array(null)
-    );
+    if ($inputs->get('-m')) {
+        $patchFile = \DBPatcher\PatchFile::copyWithNewStatus($patchFile, \DBPatcher\PatchFile::STATUS_INSTALLED);
+    } else {
+        list($patchFile, $errorMsg) = array_merge(
+            \DBPatcher\Apply\applyPatch($patchFile, $dbConnection, new \Symfony\Component\Process\Process(''), STDOUT, STDERR),
+            array(null)
+        );
+
+        if ($patchFile->status === \DBPatcher\PatchFile::STATUS_ERROR) {
+            $output->out("Error!", 'bold_red');
+            $output->out($errorMsg);
+        }
+    }
 
     \DBPatcher\Storage\savePatchFile($dbConnection, $patchFile);
 
     if ($patchFile->status === \DBPatcher\PatchFile::STATUS_ERROR) {
-        $output->out("Error!", 'bold_red');
-        $output->out($errorMsg);
-
         return false;
     }
 
