@@ -34,7 +34,7 @@ CREATE TABLE db_patcher
   "name" text NOT NULL,
   status smallint NOT NULL DEFAULT 0,
   md5 text NOT NULL,
-  installed_tmstmp timestamp without time zone,
+   timestamp without time zone,
   CONSTRAINT pk_db_patch PRIMARY KEY (id ),
   CONSTRAINT ak_key_2_db_patch UNIQUE ("name")
 )
@@ -60,7 +60,7 @@ function createDbPatcherVersionSqlFunction($connection)
     $currentVersion = getDbPatcherVersion();
 
     $connection->executeQuery(<<<SQL
-CREATE OR REPLACE FUNCTION db_patcher_version() RETURNS double AS $$ SELECT '$currentVersion'; $$ LANGUAGE SQL;
+CREATE OR REPLACE FUNCTION db_patcher_version() RETURNS varchar AS $$ SELECT '$currentVersion'::varchar; $$ LANGUAGE SQL;
 SQL
     );
 }
@@ -72,7 +72,10 @@ SQL
 function updateDbPatcherDatabase($connection, $fromVersion)
 {
     $patches = array(
-        '0.0.1' => array('ALTER TABLE db_patcher DROP COLUMN modified_tmstmp')
+        '0.0.1' => array(
+            'ALTER TABLE db_patcher DROP COLUMN modified_tmstmp',
+            'ALTER TABLE db_patcher DROP COLUMN installed_tmstmp'
+        )
     );
 
     foreach ($patches as $version => $sqls) {
