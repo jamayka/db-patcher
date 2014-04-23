@@ -60,7 +60,7 @@ function createDbPatcherVersionSqlFunction($connection)
 
     $connection->executeQuery(<<<SQL
 
-CREATE OR REPLACE FUNCTION db_patcher_version() RETURNS double AS $$ SELECT '$currentVersion'; $$ LANGUAGE SQL;
+CREATE OR REPLACE FUNCTION db_patcher_version() RETURNS varchar AS $$ SELECT '$currentVersion'::varchar; $$ LANGUAGE SQL;
 SQL
     );
 }
