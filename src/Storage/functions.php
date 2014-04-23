@@ -11,7 +11,7 @@ use Doctrine\DBAL\DBALException;
  */
 function getDbPatcherVersion()
 {
-    return '0.0.2';
+    return '0.0.3';
 }
 
 /**
