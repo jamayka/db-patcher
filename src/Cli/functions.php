@@ -49,9 +49,16 @@ function getMarkPatchesOption($inputs)
 function getPatchFileMasksToApply($inputs)
 {
     $allInputs = $inputs->getInputs();
+
+    try {
+        $masksParam = array($inputs->get('masks'));
+    } catch (\Exception $e) {
+        $masksParam = array();
+    }
+
     return array_filter(
         array_merge(
-            array($inputs->get('masks')),
+            $masksParam,
             array_map(
                 function ($v, $k) { return is_numeric($k) ? $v : false; },
                 $allInputs,
