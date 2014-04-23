@@ -45,7 +45,10 @@ Example of JSON configuration file:
 Usage
 -----
 
-    Usage: vendor/bin/db-patcher.php [options]
+    Usage: vendor/bin/db-patcher.php [masks] [options]
+
+    Parameters:
+        [masks] Filename masks of patches to apply whitespace delimited
 
     Options:
         -l, --list Just output list of patches
@@ -56,7 +59,5 @@ Usage
         -i, --interactive Interactive mode
         -m, --mark-installed Do not actually apply patch just mark as installed
         -s, --stop-on-error Stop patches on error
-        -p, --patch [name] Patch name to run (relative to patches directory)
-        --pattern [pattern] Shell wildcard pattern for patch file name
-        --config [filename] Config json filename
+        -cf, --config [filename] Config json filename
         -h, --help Output usage information
