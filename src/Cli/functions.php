@@ -18,9 +18,9 @@ function getConfiguredOptions($inputs)
     $inputs->option('-i, --interactive', 'Interactive mode');
     $inputs->option('-m, --mark-installed', 'Do not actually apply patch just mark as installed');
     $inputs->option('-s, --stop-on-error', 'Stop patches on error');
-    $inputs->option('-p, --patch [name]', 'Patch name to run (relative to patches directory)');
-    $inputs->option('-pt, --pattern [pattern]', 'Shell wildcard pattern for patch file name');
     $inputs->option('-cf, --config [filename]', 'Config json filename');
+
+    $inputs->param('masks', 'Filename masks of patches to apply whitespace delimited');
 
     return $inputs;
 }
@@ -46,14 +46,19 @@ function getMarkPatchesOption($inputs)
     return $inputs->get('-m');
 }
 
-function getPatchFileToApplyOption($inputs)
+function getPatchFileMasksToApply($inputs)
 {
-    return $inputs->get('-p');
-}
-
-function getPatchFilePatternOption($inputs)
-{
-    return $inputs->get('--pattern');
+    $allInputs = $inputs->getInputs();
+    return array_filter(
+        array_merge(
+            array($inputs->get('masks')),
+            array_map(
+                function ($v, $k) { return is_numeric($k) ? $v : false; },
+                $allInputs,
+                array_keys($allInputs)
+            )
+        )
+    );
 }
 
 function getListOnlyOption($inputs)

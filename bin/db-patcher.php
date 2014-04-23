@@ -130,22 +130,25 @@ if (!is_dir($patchesDir) || !is_readable($patchesDir)) {
 
 // --------------------------------------------------------------------------------------------------------------------
 
-if (\DBPatcher\Cli\getPatchFileToApplyOption($inputs)) {
-    $patchFiles = array(
-        \DBPatcher\PatchFile::createFromFS(\DBPatcher\Cli\getPatchFileToApplyOption($inputs), $patchesDir)
-    );
-} else {
-    $patchFiles = \DBPatcher\getPatchFiles(
-        \DBPatcher\getPatchNamesList($patchesDir),
-        $patchesDir,
-        array('\DBPatcher\PatchFile', 'createFromFS')
-    );
-}
+$patchFiles = \DBPatcher\getPatchFiles(
+    \DBPatcher\getPatchNamesList($patchesDir),
+    $patchesDir,
+    array('\DBPatcher\PatchFile', 'createFromFS')
+);
 
-if (($pattern = \DBPatcher\Cli\getPatchFilePatternOption($inputs))) {
-    $patchFiles = array_filter($patchFiles, function ($patchFile) use ($pattern) {
-            return fnmatch($pattern, $patchFile->name, FNM_CASEFOLD | FNM_PATHNAME);
-        });
+if (($fileMasks = \DBPatcher\Cli\getPatchFileMasksToApply($inputs))) {
+    $patchFiles = array_filter(
+        $patchFiles,
+        function ($patchFile) use ($fileMasks) {
+            foreach ($fileMasks as $mask) {
+                if (fnmatch($mask, $patchFile->name, FNM_CASEFOLD | FNM_PATHNAME)) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+    );
 }
 
 if (empty($patchFiles)) {
@@ -164,7 +167,7 @@ if (\DBPatcher\Cli\getListOnlyOption($inputs)) {
     exit;
 }
 
-if (!\DBPatcher\Cli\getPatchFileToApplyOption($inputs)) {
+if (count($patchFiles) > 1) {
     $output->out('Following patches will be ' . (\DBPatcher\Cli\getMarkPatchesOption($inputs) ? 'marked' : 'applied'));
     $amountOfPatchesToInstall = count(array_filter(array_map($printPatch, $patchFiles)));
 

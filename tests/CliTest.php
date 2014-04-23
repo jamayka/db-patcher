@@ -21,8 +21,8 @@ class CliTest extends \PHPUnit_Framework_TestCase
         $inputs->shouldReceive('option')->withArgs(array('-m, --mark-installed', m::any()))->once();
         $inputs->shouldReceive('option')->withArgs(array('-s, --stop-on-error', m::any()))->once();
         $inputs->shouldReceive('option')->withArgs(array('-cf, --config [filename]', m::any()))->once();
-        $inputs->shouldReceive('option')->withArgs(array('-p, --patch [name]', m::any()))->once();
-        $inputs->shouldReceive('option')->withArgs(array('-pt, --pattern [pattern]', m::any()))->once();
+
+        $inputs->shouldReceive('param')->withArgs(array('masks', m::any()))->once();
 
         $this->assertSame($inputs, getConfiguredOptions($inputs));
     }
@@ -120,20 +120,13 @@ class CliTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue(getMarkPatchesOption($inputs));
     }
 
-    public function testGetPatchFileToApplyOptionCallsCorrectOption()
+    public function testGetPatchFileMasksToApplyCallsCorrectOptionAndReturnsResult()
     {
         $inputs = m::mock();
-        $inputs->shouldReceive('get')->with('-p')->once()->andReturn('some');
+        $inputs->shouldReceive('get')->with('masks')->once()->andReturn('f1');
+        $inputs->shouldReceive('getInputs')->once()->andReturn(array('f2', 'f3', '-c' => 'some', 'masks' => 'f1'));
 
-        $this->assertSame('some', getPatchFileToApplyOption($inputs));
-    }
-
-    public function testGetPatchFilePatternOptionCallsCorrectOption()
-    {
-        $inputs = m::mock();
-        $inputs->shouldReceive('get')->with('--pattern')->once()->andReturn('some');
-
-        $this->assertSame('some', getPatchFilePatternOption($inputs));
+        $this->assertSame(array('f1', 'f2', 'f3'), getPatchFileMasksToApply($inputs));
     }
 
     public function testGetListOnlyOptionCallsCorrectOption()
