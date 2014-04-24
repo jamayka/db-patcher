@@ -82,12 +82,16 @@ function getPatchNamesList($baseDir)
 
     foreach (new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($baseDir)) as $fileInfo) {
         if ($fileInfo->isFile()) {
-            $result[] = ltrim(substr($fileInfo->getPathname(), strlen($baseDir)), '/');
+            $patchName = ltrim(substr($fileInfo->getPathname(), strlen($baseDir)), '/');
+            $nameWoExt = $fileInfo->getExtension() ?
+                substr($patchName, 0, strlen($patchName) - strlen($fileInfo->getExtension()) - 1) :
+                $patchName;
+            $result[$nameWoExt] = $patchName;
         }
     }
 
-    sort($result);
-    return $result;
+    ksort($result);
+    return array_values($result);
 }
 
 /**

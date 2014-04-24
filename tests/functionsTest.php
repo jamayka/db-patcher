@@ -61,8 +61,10 @@ class DBPatcherTest extends \PHPUnit_Framework_TestCase
             '2.some-patch.sql' => '',
             '1.dir' => array(
                 '5.php-script.php' => '',
+                '1.patch-step2.sql' => '',
                 '1.patch.sql' => ''
             ),
+            '4some' => '',
             '3.other-patch.sql' => ''
         );
 
@@ -70,9 +72,11 @@ class DBPatcherTest extends \PHPUnit_Framework_TestCase
 
         $expected = array(
             '1.dir/1.patch.sql',
+            '1.dir/1.patch-step2.sql',
             '1.dir/5.php-script.php',
             '2.some-patch.sql',
-            '3.other-patch.sql'
+            '3.other-patch.sql',
+            '4some'
         );
 
         $this->assertSame($expected, getPatchNamesList(vfsStream::url('testDir')));
