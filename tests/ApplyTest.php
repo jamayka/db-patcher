@@ -121,4 +121,13 @@ class ApplyTest extends \PHPUnit_Framework_TestCase
         fclose($stderr);
     }
 
+    public function testApplyPhpPatchUnsetsProcessTimeouts()
+    {
+        $process = m::mock()->shouldIgnoreMissing();
+        $process->shouldReceive('setTimeout')->with(null)->once();
+        $process->shouldReceive('setIdleTimeout')->with(null)->once();
+
+        applyPhpPatch(DBPatcher\PatchFile::_createForTest('n1', 'f1', 'm1', 'php'), $process);
+    }
+
 }

@@ -36,7 +36,8 @@ function applyPatch($patchFile, $connection, $process, $stdout, $stderr)
 function applyPhpPatch($patchFile, $process, $stdout = null, $stderr = null)
 {
     if ($patchFile->extension === 'php') {
-
+        $process->setTimeout(null);
+        $process->setIdleTimeout(null);
         $process->setCommandLine('/usr/bin/env php ' . $patchFile->filename);
         $process->start(
             function ($type, $buffer) use ($stdout, $stderr) {
