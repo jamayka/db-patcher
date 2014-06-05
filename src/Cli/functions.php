@@ -10,6 +10,7 @@ use DBPatcher;
  */
 function getConfiguredOptions($inputs)
 {
+    $inputs->option('-q, --quite', 'Run in quite mode (answer Yes to all questions)');
     $inputs->option('-l, --list', 'Just output list of patches');
     $inputs->option('-n, --new', 'Install new patches');
     $inputs->option('-c, --changed', 'Install changed patches');
@@ -76,6 +77,11 @@ function getListOnlyOption($inputs)
 function getStopOnErrorOption($inputs)
 {
     return $inputs->get('-s');
+}
+
+function getQuiteOption($inputs)
+{
+    return $inputs->get('-q');
 }
 
 // --------------------------------------------------------------------------------------------------------------------

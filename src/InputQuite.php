@@ -2,10 +2,9 @@
 
 namespace DBPatcher;
 
-use DBPatcher\InputPreview\Exception;
 use FusePump\Cli\Inputs;
 
-class InputPreview
+class InputQuite
 {
 
     /**
@@ -23,12 +22,12 @@ class InputPreview
 
     public static function confirm()
     {
-        throw new Exception;
+        return true;
     }
 
     public static function prompt()
     {
-        throw new Exception;
+        return true;
     }
 
     public function __call($name, $arguments)

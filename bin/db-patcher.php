@@ -27,6 +27,10 @@ if (!$inputs->parse()) {
     exit(1);
 }
 
+if (\DBPatcher\Cli\getQuiteOption($inputs)) {
+    $inputs = new \DBPatcher\InputQuite($inputs);
+}
+
 // --------------------------------------------------------------------------------------------------------------------
 
 $config = \DBPatcher\Cli\getConfig($baseDir, \DBPatcher\Cli\getConfigOption($inputs));
@@ -167,7 +171,7 @@ if (\DBPatcher\Cli\getListOnlyOption($inputs)) {
     exit;
 }
 
-if (count($patchFiles) > 1) {
+if (count($patchFiles) > 1 && !\DBPatcher\Cli\getQuiteOption($inputs)) {
     $output->out('Following patches will be ' . (\DBPatcher\Cli\getMarkPatchesOption($inputs) ? 'marked' : 'applied'));
     $amountOfPatchesToInstall = count(array_filter(array_map($printPatch, $patchFiles)));
 

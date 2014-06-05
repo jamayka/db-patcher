@@ -12,6 +12,7 @@ class CliTest extends \PHPUnit_Framework_TestCase
     public function testOptionsFactory()
     {
         $inputs = m::mock(function ($m) { $m->shouldIgnoreMissing(); });
+        $inputs->shouldReceive('option')->withArgs(array('-q, --quite', m::any()))->once();
         $inputs->shouldReceive('option')->withArgs(array('-l, --list', m::any()))->once();
         $inputs->shouldReceive('option')->withArgs(array('-n, --new', m::any()))->once();
         $inputs->shouldReceive('option')->withArgs(array('-c, --changed', m::any()))->once();
@@ -143,6 +144,14 @@ class CliTest extends \PHPUnit_Framework_TestCase
         $inputs->shouldReceive('get')->with('-s')->once()->andReturn(true);
 
         $this->assertTrue(getStopOnErrorOption($inputs));
+    }
+
+    public function testGetQuiteOptionCallsCorrectOption()
+    {
+        $inputs = m::mock();
+        $inputs->shouldReceive('get')->with('-q')->once()->andReturn(true);
+
+        $this->assertTrue(getQuiteOption($inputs));
     }
 
     private static function rootProjectFileStructure($add = array())
