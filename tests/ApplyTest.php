@@ -19,8 +19,7 @@ class ApplyTest extends \PHPUnit_Framework_TestCase
         /** @var \Doctrine\DBAL\SQLParserUtils Connection $c */
         $connection = m::mock();
         $connection->shouldReceive('beginTransaction')->once();
-        $connection->shouldReceive('executeQuery')->with('SELECT 1;')->once();
-        $connection->shouldReceive('executeQuery')->with('SELECT 2;')->once();
+        $connection->shouldReceive('exec')->with('SELECT 1;SELECT 2;')->once();
         $connection->shouldReceive('commit')->once();
 
         list($patch) = applySqlPatch($patchFile, $connection);
@@ -37,7 +36,7 @@ class ApplyTest extends \PHPUnit_Framework_TestCase
         /** @var \Doctrine\DBAL\SQLParserUtils Connection $c */
         $connection = m::mock();
         $connection->shouldReceive('beginTransaction')->once();
-        $connection->shouldReceive('executeQuery')
+        $connection->shouldReceive('exec')
             ->with('SELE')
             ->once()
             ->andThrow('\Doctrine\DBAL\DBALException', 'Error test');

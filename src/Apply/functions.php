@@ -69,11 +69,12 @@ function applyPhpPatch($patchFile, $process, $stdout = null, $stderr = null)
 function applySqlPatch($patchFile, $connection)
 {
     if ($patchFile->extension === 'sql') {
-        $queries = \SqlFormatter::splitQuery(file_get_contents($patchFile->filename));
+        $sqlCommands = file_get_contents($patchFile->filename);
+
         $connection->beginTransaction();
 
         try {
-            array_walk($queries, function ($query) use ($connection) { $connection->executeQuery($query); });
+            $connection->exec($sqlCommands);
         } catch (\Doctrine\DBAL\DBALException $e) {
             $connection->rollBack();
 
